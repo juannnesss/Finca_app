@@ -31,6 +31,8 @@ public class Finca implements Serializable
 	
 	private String archivoFinca;
 	
+	private LocalDate fechaUltimoCierreEmpleados;
+	
 	public Finca(File fileRutaFinca) throws Exception
 	{
 		archivoFinca=fileRutaFinca.getAbsolutePath();
@@ -50,6 +52,7 @@ public class Finca implements Serializable
 				insumos=(ArrayList<Insumo>)finca.darInsumos();
 				
 				servicios=(ArrayList<Servicio>)finca.darServicios();
+				fechaUltimoCierreEmpleados=finca.darFechaUltimoCierreEmpleados();
 				
 				
 				
@@ -71,10 +74,12 @@ public class Finca implements Serializable
 			empleados=new ArrayList<Empleado>();
 			servicios=new ArrayList<Servicio>();
 			insumos=new ArrayList<Insumo>();
+			fechaUltimoCierreEmpleados=null;
 			
 		}
 	}
-	public Finca(String nRuta,ArrayList<Lote> nLotes,ArrayList<Maquina> nMaquinas,ArrayList<Empleado> nEmpleados, ArrayList<Servicio> nServicios,ArrayList<Insumo> nInsumos)
+	
+	public Finca(String nRuta,ArrayList<Lote> nLotes,ArrayList<Maquina> nMaquinas,ArrayList<Empleado> nEmpleados, ArrayList<Servicio> nServicios,ArrayList<Insumo> nInsumos,LocalDate fechaUltimoCierre)
 	{
 		lotes=nLotes;
 		maquinas=nMaquinas;
@@ -82,6 +87,7 @@ public class Finca implements Serializable
 		servicios=nServicios;
 		insumos=nInsumos;
 		archivoFinca=nRuta;
+		fechaUltimoCierreEmpleados=fechaUltimoCierre;
 	}
 	public void salvarFinca() throws Exception
 {
@@ -90,7 +96,7 @@ public class Finca implements Serializable
 		ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream(archivoFinca));
 	
 
-		oos.writeObject(new Finca(archivoFinca, lotes, maquinas, empleados, servicios,insumos));
+		oos.writeObject(new Finca(archivoFinca, lotes, maquinas, empleados, servicios,insumos,fechaUltimoCierreEmpleados));
 	
 
 		oos.close();
@@ -142,15 +148,35 @@ public class Finca implements Serializable
 	{
 		return insumos.get(index);
 	}
-	public void nuevoEmpleado(String nNombre, String nCedula)
+	public Cultivo darCultivoPorLote(String producto, String nombreLote)
+	{
+		Lote lote=buscarLoteNombre(nombreLote);
+		if(lote.darCultivoActual().darProducto().equals(producto))
+		{
+			return lote.darCultivoActual();
+		}
+		else
+		{
+			return null;
+		}
+	}
+	public void nuevoEmpleado(String nNombre, String nCedula,LocalDate nFecha,String nEps,String zapatos
+			,String pantalon,String camiseta,double nSalario)
 	{
 		if(existeEmpleado(nNombre)==false)
 		{
-			Empleado empleado=new Empleado(nNombre, nCedula, 0);
+			Empleado empleado=new Empleado(nNombre, nCedula, nFecha,nEps, zapatos
+					 ,pantalon,camiseta, nSalario,0);
 			empleados.add(empleado);
 			
 		}
 		
+	}
+	
+	public LocalDate darFechaUltimoCierreEmpleados() 
+	{
+		// TODO Auto-generated method stub
+		return fechaUltimoCierreEmpleados;
 	}
 	public void nuevaMaquina(String nNombre,int nHoras)
 	{
@@ -390,18 +416,7 @@ public class Finca implements Serializable
 			insumos.remove(index);
 		}
 	}
-	public Cultivo darCultivoPorLote(String producto, String nombreLote)
-	{
-		Lote lote=buscarLoteNombre(nombreLote);
-		if(lote.darCultivoActual().darProducto().equals(producto))
-		{
-			return lote.darCultivoActual();
-		}
-		else
-		{
-			return null;
-		}
-	}
+	
 	public boolean asignarProduccion(String nomLote,double produccion)
 	{
 		boolean rta=false;
@@ -411,6 +426,59 @@ public class Finca implements Serializable
 			lote.asignarProduccionLote(produccion);
 			rta=true;
 		}
+		return rta;
+	}
+	public ArrayList liquidarEmpleados(LocalDate fechaCierre)
+	{
+		ArrayList rta=new ArrayList<>();
+		if(fechaUltimoCierreEmpleados==null)
+		{
+			for (int i = 0; i < empleados.size(); i++) 
+			{
+				Empleado iEmple=empleados.get(i);
+				ArrayList<Servicio> iServ=iEmple.darServiciosPrestados();
+				String[] linea=new String[2];
+				linea[0]=iEmple.darNombre();
+				double totalTrabajado=0;
+				for(int s=0;s<iServ.size();i++)
+				{
+					//codigo para sumar las horas
+					totalTrabajado+=1;
+				}
+				linea[1]=totalTrabajado+"";
+				rta.add(linea);
+				
+			}
+			
+		}
+		else
+		{
+			for (int i = 0; i < empleados.size(); i++) 
+			{
+				Empleado iEmple=empleados.get(i);
+				ArrayList<Servicio> iServ=iEmple.darServiciosPrestados();
+				String[] linea=new String[2];
+				linea[0]=iEmple.darNombre();
+				double totalTrabajado=0;
+				boolean seLLegoAFecha=false;
+				for(int s=iServ.size()-1;s>-1&&!(seLLegoAFecha);i--)
+				{
+					Servicio ise=iServ.get(s);
+					if(ise.darFecha().isAfter(fechaUltimoCierreEmpleados))
+					{
+						totalTrabajado+=1;
+					}
+					else
+					{
+						seLLegoAFecha=true;
+					}
+				}
+				linea[1]=totalTrabajado+"";
+				rta.add(linea);
+				
+			}
+		}
+		fechaUltimoCierreEmpleados=fechaCierre;
 		return rta;
 	}
 	

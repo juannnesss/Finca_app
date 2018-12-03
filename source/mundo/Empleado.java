@@ -1,20 +1,35 @@
 package mundo;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Empleado implements Serializable
 {
 	private static final long serialVersionUID=500L;
 	private String nombre;
+	
 	private String cedula;
+	private LocalDate fechaIngreso;
+	private String eps;
+	private String[] tallas;
+	private double salario;
 	private ArrayList<Servicio> serviciosPrestados;
 	private double diasTrabajados;
+	//private String photoFile;
 	
-	public Empleado(String nNombre, String nCedula, double nDias)
+	public Empleado(String nNombre, String nCedula,LocalDate nFecha,String nEps,String zapatos
+			,String pantalon,String camiseta,double nSalario,double nDias)
 	{
 		nombre=nNombre;
 		cedula=nCedula;
+		fechaIngreso=nFecha;
+		eps=nEps;
+		tallas=new String[3];
+		tallas[0]=zapatos;
+		tallas[1]=pantalon;
+		tallas[2]=camiseta;
+		salario=nSalario;
 		diasTrabajados=nDias;
 		serviciosPrestados=new ArrayList<Servicio>();
 	}
@@ -27,6 +42,22 @@ public class Empleado implements Serializable
 	{
 		return cedula;
 	}
+	public LocalDate darFechaIngreso()
+	{
+		return fechaIngreso;
+	}
+	public String darEps()
+	{
+		return eps;
+	}
+	public String[] darTallas()
+	{
+		return tallas;
+	}
+	public double darSalario()
+	{
+		return salario;
+	}
 	public double darDiasTrabajados()
 	{
 		return diasTrabajados;
@@ -35,10 +66,7 @@ public class Empleado implements Serializable
 	{
 		return serviciosPrestados;
 	}
-	public void nuevoServicioPrestado(Servicio servicio)
-	{
-		serviciosPrestados.add(servicio);
-	}
+	
 
 	public void agregarServicio(Servicio servicio) 
 	{
