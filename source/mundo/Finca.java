@@ -1,11 +1,13 @@
 package mundo;
 
+import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.security.KeyStore.PasswordProtection;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -29,9 +31,15 @@ public class Finca implements Serializable
 	
 	private ArrayList<Insumo> insumos;
 	
+	private ArrayList<String> proovedores;
+	
+	private ArrayList compras;
+	
 	private String archivoFinca;
 	
 	private LocalDate fechaUltimoCierreEmpleados;
+	
+	private LocalDate fechaUltimoCierreLotes;
 	
 	public Finca(File fileRutaFinca) throws Exception
 	{
@@ -53,6 +61,9 @@ public class Finca implements Serializable
 				
 				servicios=(ArrayList<Servicio>)finca.darServicios();
 				fechaUltimoCierreEmpleados=finca.darFechaUltimoCierreEmpleados();
+				fechaUltimoCierreLotes=finca.darFechaUltimoCierreLotes();
+				proovedores=finca.darProovedores();
+				compras=finca.darCompras();
 				
 				
 				
@@ -70,16 +81,25 @@ public class Finca implements Serializable
 		else
 		{
 			lotes=new ArrayList<Lote>();
+			//se crea el lote La Florencia, sede y ubicacion principal
+			Lote florencia28=new Lote("Florencia28", "Finca La Florencia", 0, 28);
+			lotes.add(florencia28);
 			maquinas=new ArrayList<Maquina>();
 			empleados=new ArrayList<Empleado>();
 			servicios=new ArrayList<Servicio>();
 			insumos=new ArrayList<Insumo>();
 			fechaUltimoCierreEmpleados=null;
+			fechaUltimoCierreLotes=null;
+			proovedores=new ArrayList<String>();
+			compras= new ArrayList<>();
 			
 		}
 	}
 	
-	public Finca(String nRuta,ArrayList<Lote> nLotes,ArrayList<Maquina> nMaquinas,ArrayList<Empleado> nEmpleados, ArrayList<Servicio> nServicios,ArrayList<Insumo> nInsumos,LocalDate fechaUltimoCierre)
+	
+
+	public Finca(String nRuta,ArrayList<Lote> nLotes,ArrayList<Maquina> nMaquinas,ArrayList<Empleado> nEmpleados,
+			ArrayList<Servicio> nServicios,ArrayList<Insumo> nInsumos,ArrayList<String> nProovedores,ArrayList nCompras,LocalDate nFechaUltimoCierreEmpleados,LocalDate nFechaUltimoCierreLotes)
 	{
 		lotes=nLotes;
 		maquinas=nMaquinas;
@@ -87,7 +107,10 @@ public class Finca implements Serializable
 		servicios=nServicios;
 		insumos=nInsumos;
 		archivoFinca=nRuta;
-		fechaUltimoCierreEmpleados=fechaUltimoCierre;
+		fechaUltimoCierreEmpleados=nFechaUltimoCierreEmpleados;
+		fechaUltimoCierreLotes=nFechaUltimoCierreLotes;
+		proovedores=nProovedores;
+		compras=nCompras;
 	}
 	public void salvarFinca() throws Exception
 {
@@ -96,7 +119,7 @@ public class Finca implements Serializable
 		ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream(archivoFinca));
 	
 
-		oos.writeObject(new Finca(archivoFinca, lotes, maquinas, empleados, servicios,insumos,fechaUltimoCierreEmpleados));
+		oos.writeObject(new Finca(archivoFinca, lotes, maquinas, empleados, servicios,insumos,proovedores,compras,fechaUltimoCierreEmpleados,fechaUltimoCierreLotes));
 	
 
 		oos.close();
@@ -130,6 +153,24 @@ public class Finca implements Serializable
 	public ArrayList<Insumo> darInsumos()
 	{
 		return insumos;
+	}
+	public ArrayList<String> darProovedores()
+	{
+		return proovedores;
+	}
+	public ArrayList darCompras() 
+	{
+		
+		return compras;
+	}
+	public LocalDate darFechaUltimoCierreEmpleados() 
+	{
+		// TODO Auto-generated method stub
+		return fechaUltimoCierreEmpleados;
+	}
+	public LocalDate darFechaUltimoCierreLotes()
+	{
+		return fechaUltimoCierreLotes;
 	}
 	
 	public ArrayList<Cultivo> darCultivosActuales()
@@ -173,11 +214,7 @@ public class Finca implements Serializable
 		
 	}
 	
-	public LocalDate darFechaUltimoCierreEmpleados() 
-	{
-		// TODO Auto-generated method stub
-		return fechaUltimoCierreEmpleados;
-	}
+	
 	public void nuevaMaquina(String nNombre,int nHoras)
 	{
 		if(existeMaquina(nNombre)==false)
@@ -209,8 +246,8 @@ public class Finca implements Serializable
 			
 			double cantidad=dosis*areaLote;
 			System.out.println(buscarInsumoIndex(nombre));
-			insumos.get(buscarInsumoIndex(nombre)).registrarCompra((-cantidad));
-			usados.add(new Insumo(nombre, cantidad, insumos.get(buscarInsumoIndex(nombre)).darValorUnidad(), insumos.get(buscarInsumoIndex(nombre)).darTipoMedida()));
+			insumos.get(buscarInsumoIndex(nombre)).registrarCompra(-cantidad , lotes.get(0).darNombre());
+			usados.add(new Insumo(nombre, cantidad, insumos.get(buscarInsumoIndex(nombre)).darValorUnidad(), insumos.get(buscarInsumoIndex(nombre)).darTipoMedida(),lotes.get(0).darNombre()));
 			
 			
 		}
@@ -242,11 +279,36 @@ public class Finca implements Serializable
 	{
 		if(existeInsumo(nNombre)==false)
 		{
-			insumos.add(new Insumo(nNombre, nCantidad,nValorUnidad,nTipoMedida));
+			insumos.add(new Insumo(nNombre, nCantidad,nValorUnidad,nTipoMedida,lotes.get(0).darNombre()));
  
 		}
 	}
-	
+	public boolean nuevoProovedor(String proovedor) 
+	{
+		boolean rta=false;
+		if(buscarProovedorIndex(proovedor)==-1)
+		{
+			proovedores.add(proovedor);
+			rta=true;
+		}
+		return rta;
+	}
+	public void nuevaCompra(LocalDate date,Insumo[] insu,String prove)
+	{
+		for (int i = 0; i < insu.length; i++) 
+		{
+			Insumo iIns=insu[i];
+			// se asume que la ubicacion es La Florencia28
+			insumos.get(buscarInsumoIndex(iIns.darNombre())).registrarCompra(iIns.darCantidadTotal(), lotes.get(0).darNombre());
+			
+		}
+		ArrayList compra=new ArrayList<>();
+		compra.add(date);
+		compra.add(insu);
+		compra.add(prove);
+		compras.add(compra);
+		
+	}
 	public Lote buscarLoteNombre(String nombre)
 	{
 		Lote lote=null;
@@ -318,6 +380,22 @@ public class Finca implements Serializable
 		}
 		return rta;
 	}
+	public int buscarProovedorIndex(String proveedor)
+	{
+		int rta=-1;
+		
+		for(int i=0;i<proovedores.size();i++)
+		{
+			String iPro=proovedores.get(i);
+			if(iPro.equals(proveedor))
+			{
+				rta=i;
+			}
+			
+		}
+		return rta;
+		
+	}
 	public boolean existeEmpleado(String nNombre)
 	{
 		
@@ -362,7 +440,8 @@ public class Finca implements Serializable
 		for (int i = 0; i < insu.size(); i++) 
 		{
 			Insumo iInsu=insu.get(i);
-			insumos.get(buscarInsumoIndex((iInsu.darNombre()))).registrarCompra(iInsu.darCantidad());
+			//cuando los insumos que sea borrados tengan otras localizaciones 
+			insumos.get(buscarInsumoIndex((iInsu.darNombre()))).registrarCompra(iInsu.darCantidadTotal(),lotes.get(0).darNombre());
 			
 		}
 		servicios.remove(index);
@@ -473,7 +552,7 @@ public class Finca implements Serializable
 						seLLegoAFecha=true;
 					}
 				}
-				linea[1]=totalTrabajado+"";
+				linea[1]="El total de horas es:"+totalTrabajado+";";
 				rta.add(linea);
 				
 			}
@@ -481,7 +560,29 @@ public class Finca implements Serializable
 		fechaUltimoCierreEmpleados=fechaCierre;
 		return rta;
 	}
-	
+	public void agregarGastoMaquina(String maquinaNombre,Servicio servi, double horometro)
+	{
+		buscarMaquinaNombre(maquinaNombre).agregarGasto(servi, horometro);
+	}
+	public void generarReporteCierre()
+	{
+		if(darFechaUltimoCierreLotes()==null)
+		{
+			ArrayList<Insumo> reporteInsumos= new ArrayList<>();
+			
+			for (int i = 0; i < compras.size(); i++) 
+			{
+				ArrayList iCompra=(ArrayList) compras.get(i);
+				LocalDate iDate=(LocalDate)iCompra.get(0);
+				Insumo[] iInsumos=(Insumo[])iCompra.get(1);
+				String iProovedor=(String)iCompra.get(2);
+				
+				
+				
+			}
+		}
+		
+	}
 	
 	
 	

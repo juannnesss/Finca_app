@@ -76,7 +76,7 @@ public class Servicio implements Serializable
 		for (int i = 0; i < insumos.size(); i++) 
 		{
 			Insumo iInsumo=insumos.get(i);
-			double cantidad=iInsumo.darCantidad();
+			double cantidad=iInsumo.darCantidadTotal();
 			double valorUnidad=iInsumo.darValorUnidad();
 			costoInsumos+=(cantidad*valorUnidad);
 			

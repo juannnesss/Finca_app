@@ -1,6 +1,7 @@
 package mundo;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Insumo implements Serializable
 {
@@ -8,41 +9,69 @@ public class Insumo implements Serializable
 	
 	private String nombre;
 	
-	private double cantidad;
+	private double cantidadTotal;
+	private ArrayList<Object[]> distribucion;
 	
 	private double valorUnidad;
 	
 	private String tipoCantidadMedida;
 	
-	public Insumo(String nNombre,double nCantidad, double nValorUnidad, String nTipoMedida)
+	public Insumo(String nNombre,double nCantidad, double nValorUnidad, String nTipoMedida,String ubicacionInicial)
 	{
 		nombre=nNombre;
-		cantidad=nCantidad;
+		cantidadTotal=nCantidad;
 		valorUnidad=nValorUnidad;
 		tipoCantidadMedida=nTipoMedida;
+		distribucion=new ArrayList<>();
+		Object[] ob=new Object[2];
+		ob[0]=ubicacionInicial;
+		ob[1]=cantidadTotal;
+		distribucion.add(ob);
 		
 	}
 	public String darNombre()
 	{
 		return nombre;
 	}
-	public double darCantidad()
+	public double darCantidadTotal()
 	{
-		return cantidad;
+		return cantidadTotal;
 	
 	}
 	public String darTipoMedida()
 	{
 		return tipoCantidadMedida;
 	}
-	public void registrarCompra(double nuevo)
+	public void registrarCompra(double nuevo,String ubicacion)
 	{
-		cantidad+=nuevo;
+		cantidadTotal+=nuevo;
+		double cantiUbicacion=Double.parseDouble((distribucion.get(buscarUbicacion(ubicacion))[1]).toString());
+		distribucion.get(buscarUbicacion(ubicacion))[1]=cantiUbicacion+nuevo;
 	}
 	public double darValorUnidad() 
 	{
 		return valorUnidad;
 	}
-	
+	public int buscarUbicacion(String ubicacion)
+	{
+		int rta=-1;
+		for (int i = 0; i < distribucion.size()&&rta==-1; i++) 
+		{
+			Object[] iOb=distribucion.get(i);
+			if(iOb[0].toString().equals(ubicacion))
+			{
+				rta=i;
+			}
+			
+		}
+		return rta;
+	}
+	public void nuevaUbicacion(String ubica)
+	{
+		Object[] ob=new Object[2];
+		ob[0]=ubica;
+		ob[1]=0;
+		distribucion.add(ob);
+	}
 
 }

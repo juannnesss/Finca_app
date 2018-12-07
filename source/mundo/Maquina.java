@@ -10,6 +10,7 @@ public class Maquina implements Serializable
 	private ArrayList<Servicio> gastos;
 	private ArrayList<Servicio> trabajos;
 	private int diasDeTrabajo;
+	private double horoMetro;
 	
 	public Maquina(String nNombre,int horas)
 	{
@@ -17,6 +18,7 @@ public class Maquina implements Serializable
 		gastos=new ArrayList<Servicio>();
 		trabajos=new ArrayList<Servicio>();
 		diasDeTrabajo=horas;
+		horoMetro=0;
 	}
 	
 	public String darNombre()
@@ -38,9 +40,11 @@ public class Maquina implements Serializable
 	{
 		return diasDeTrabajo;
 	}
-	public void agregarGasto(Servicio servicio)
+	public void agregarGasto(Servicio servicio,double horometro)
 	{
 		gastos.add(servicio);
+		setHorometro(horometro);
+		
 	}
 	
 	public void agregarTrabajo(Servicio trabajo)
@@ -83,6 +87,10 @@ public class Maquina implements Serializable
 			rta+=iServicio.darCostoXArea();
 		}
 		return rta;
+	}
+	public void setHorometro(double horometro)
+	{
+		horoMetro=horometro;
 	}
 
 }
