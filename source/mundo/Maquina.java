@@ -40,6 +40,10 @@ public class Maquina implements Serializable
 	{
 		return diasDeTrabajo;
 	}
+	public double darHorometro()
+	{
+		return horoMetro;
+	}
 	public void agregarGasto(Servicio servicio,double horometro)
 	{
 		gastos.add(servicio);

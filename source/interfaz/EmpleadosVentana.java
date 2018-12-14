@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -24,6 +25,7 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 {
 	private final static String NUEVO_EMPLEADO = "nuevoEmpleado";
 	private final static String ELIMINAR_EMPLEADO = "eliminarEmpleado";
+	private final static String LIQUIDAR_EMPLEADOS = "liquidarEmpleados";
 	private final static String ATRAS = "atras";
 	private final static String[] columTags = { "Nombre", "Cedula", "Dias Trabajados" };
 
@@ -33,6 +35,7 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 
 	private JButton nEmpleado;
 	private JButton eEmpleado;
+	private JButton liquidar;
 	private JButton atras;
 
 	private JList txtEmpleados;
@@ -46,7 +49,7 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 		finca = interfazPrincipal.darFinca();
 		setLayout(new BorderLayout());
 		JPanel panelBotones = new JPanel();
-		panelBotones.setLayout(new GridLayout(3, 1));
+		panelBotones.setLayout(new GridLayout(4, 1));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		setTitle("Florencia-Empleados");
@@ -61,6 +64,11 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 		eEmpleado.setActionCommand(ELIMINAR_EMPLEADO);
 		eEmpleado.addActionListener(this);
 		panelBotones.add(eEmpleado);
+		
+		liquidar = new JButton("Liquidar Empleados");
+		liquidar.setActionCommand(LIQUIDAR_EMPLEADOS);
+		liquidar.addActionListener(this);
+		panelBotones.add(liquidar);
 
 		atras = new JButton("Atras");
 		atras.setActionCommand(ATRAS);
@@ -114,7 +122,12 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 		{
 			eliminarEmpleado();
 		}
-		if (a.equals(ATRAS)) {
+		if(a.equals(LIQUIDAR_EMPLEADOS))
+		{
+			liquidarEmpleados();
+		}
+		if (a.equals(ATRAS)) 
+		{
 			this.setVisible(false);
 			interfazPrincipal.setVisible(true);
 		}
@@ -124,14 +137,16 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 
 
 
-	public void nuevoEmpleado(String nNombre, String nCedula) {
-		finca.nuevoEmpleado(nNombre, nCedula);
+	public void nuevoEmpleado(String nNombre, String nCedula,LocalDate nFecha,String nEps,String zapatos
+			,String pantalon,String camiseta,double nSalario) 
+	{
+		finca.nuevoEmpleado(nNombre, nCedula, nFecha, nEps, zapatos, pantalon, camiseta, nSalario);
 		setVisible(false);
 		interfazPrincipal.actualizarEmpleados();
 		
 
 	}
-	private void eliminarEmpleado() 
+	public void eliminarEmpleado() 
 	{
 		int index=tabla.getSelectedRow();
 		try
@@ -152,6 +167,20 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 		
 		}
 		
+	}
+	public void liquidarEmpleados()
+	{
+		ArrayList<String[]> reporte=finca.liquidarEmpleados(LocalDate.now());
+		
+		String reporteString="A la fecha: "+LocalDate.now()+"\n";
+		for(int i=0;i<reporte.size();i++)
+		{
+			String empleado=reporte.get(i)[0];
+			String totalHorasMensaje=reporte.get(i)[1];
+			reporteString+=empleado+": "+totalHorasMensaje+"\n";
+			
+		}
+		JOptionPane.showMessageDialog(this, reporteString, "Reporte Empleados",JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 

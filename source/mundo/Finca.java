@@ -505,9 +505,9 @@ public class Finca implements Serializable
 		}
 		return rta;
 	}
-	public ArrayList liquidarEmpleados(LocalDate fechaCierre)
+	public ArrayList<String[]> liquidarEmpleados(LocalDate fechaCierre)
 	{
-		ArrayList rta=new ArrayList<>();
+		ArrayList<String[]> rta=new ArrayList<>();
 		if(fechaUltimoCierreEmpleados==null)
 		{
 			for (int i = 0; i < empleados.size(); i++) 
@@ -522,7 +522,7 @@ public class Finca implements Serializable
 					//codigo para sumar las horas
 					totalTrabajado+=1;
 				}
-				linea[1]=totalTrabajado+"";
+				linea[1]="1.El total de horas es:"+totalTrabajado+";";
 				rta.add(linea);
 				
 			}
@@ -550,12 +550,14 @@ public class Finca implements Serializable
 						seLLegoAFecha=true;
 					}
 				}
-				linea[1]="El total de horas es:"+totalTrabajado+";";
+				linea[1]="2.El total de horas es:"+totalTrabajado+";";
 				rta.add(linea);
 				
 			}
 		}
 		fechaUltimoCierreEmpleados=fechaCierre;
+		//se retonra un arraylist donde cada index es una List[] donde List[0]=Nombre EMpleado
+		//List[1]= mensaje total horas
 		return rta;
 	}
 	public void agregarGastoMaquina(String maquinaNombre,Servicio servi, double horometro)
@@ -565,7 +567,7 @@ public class Finca implements Serializable
 	
 	//version larga, muchas simplificaciones se pueden hacer!!!!
 	//TODO
-	public void generarReporteCierre()
+	public Object[] generarReporteCierre()
 	{
 		// Que clase de reporte se requiere de los insumos al cerrar
 		ArrayList<Insumo> reporteInsumos= new ArrayList<>();
@@ -684,7 +686,10 @@ public class Finca implements Serializable
 				}
 			}
 		}
-		
+		Object[] rta=new Object[2];
+		rta[0]=proovedorReporte;
+		rta[1]=proovedorDeudaReporte;
+		return rta;
 	}
 	
 	

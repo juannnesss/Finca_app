@@ -4,6 +4,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Closeable;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -24,11 +25,25 @@ public class DialogoNuevoEmpleado extends JDialog implements ActionListener
 {
 	private static final String GUARDAR="guardar";
 	private static final String CANCELAR="cancelar";
-	private JLabel lbNombre;
-	private JLabel lbCedula;
-	private JTextField txtNombre;
-	private JTextField txtCedula;
 	
+	
+	private JLabel lbNombre;
+	private JTextField txtNombre;
+	
+	private JLabel lbCedula;
+	private JTextField txtCedula;
+
+	private JLabel lbFecha;
+	private JTextField txtFecha;
+	
+	private JLabel lbEps;
+	private JTextField txtEps;
+	
+	private JLabel lbTallas;
+	private JTextField txtTallas;
+	
+	private JLabel lbSalario;
+	private JTextField txtSalario;
 	
 	private JButton bGuardar;
 	private JButton bCancelar;
@@ -39,21 +54,38 @@ public class DialogoNuevoEmpleado extends JDialog implements ActionListener
 		super(nPrincipal);
 		setSize(500, 500);
 		interfaz=nPrincipal;
-		setLayout(new GridLayout(3,2));
+		setLayout(new GridLayout(7,2));
 		setTitle("Nuevo Empleado");
 		lbNombre=new JLabel("Nombre:");
-		lbCedula=new JLabel("Cedula:");
 		txtNombre=new JTextField();
-		txtCedula=new JTextField();
-		
-		
-		
-		
-		
 		add(lbNombre);
 		add(txtNombre);
+		
+		lbCedula=new JLabel("Cedula:");
+		txtCedula=new JTextField();
 		add(lbCedula);
 		add(txtCedula);
+		
+		lbFecha=new JLabel("Fecha Ingreso(DD.MM.AA):");
+		txtFecha=new JTextField();
+		add(lbFecha);
+		add(txtFecha);
+		
+		lbEps=new JLabel("Eps:");
+		txtEps=new JTextField();
+		add(lbEps);
+		add(txtEps);
+		
+		lbTallas=new JLabel("Tallas(Zapatos.Pantalon.Camiseta):");
+		txtTallas=new JTextField();
+		add(lbTallas);
+		add(txtTallas);
+		
+		lbSalario=new JLabel("Salarios Base:");
+		txtSalario=new JTextField();
+		add(lbSalario);
+		add(txtSalario);
+		
 		
 		
 		
@@ -78,8 +110,12 @@ public class DialogoNuevoEmpleado extends JDialog implements ActionListener
 		String a=e.getActionCommand();
 		if(a.equals(GUARDAR))
 		{
+			String[] date=txtFecha.getText().split("[.]");
 			
-			interfaz.nuevoEmpleado(txtNombre.getText(),txtCedula.getText());
+			LocalDate fecha= LocalDate.of(Integer.parseInt(20+date[2]), Integer.parseInt(date[1]),Integer.parseInt(date[0]));
+			String [] tallas=txtTallas.getText().split("[.]");
+			
+			interfaz.nuevoEmpleado(txtNombre.getText(),txtCedula.getText(),fecha, txtEps.getText(), tallas[0], tallas[1], tallas[2], Double.parseDouble(txtSalario.getText()));
 			setVisible(false);
 			
 		}

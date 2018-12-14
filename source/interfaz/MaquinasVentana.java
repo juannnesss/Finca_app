@@ -22,8 +22,9 @@ import mundo.Maquina;
 public class MaquinasVentana extends JFrame implements ActionListener {
 	private final static String NUEVO = "nuevo";
 	private final static String ELIMINAR = "eliminar";
+	private final static String SET_HOROMETRO="setHorometro";
 	private final static String ATRAS = "atras";
-	private final static String[] columTags = { "Nombre", "Servicios", "Gastos", "Horas Trabajados" };
+	private final static String[] columTags = { "Nombre", "Servicios", "Gastos", "Horas Trabajados" ,"Horometro"};
 
 	private InterfazFinca interfazPrincipal;
 	private Finca finca;
@@ -31,6 +32,7 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 
 	private JButton nMaquina;
 	private JButton eMaquina;
+	private JButton sHorometro;
 	private JButton atras;
 
 	private JScrollPane scroll;
@@ -42,7 +44,7 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 		finca = interfazPrincipal.darFinca();
 		setLayout(new BorderLayout());
 		JPanel panelBotones = new JPanel();
-		panelBotones.setLayout(new GridLayout(3, 1));
+		panelBotones.setLayout(new GridLayout(4, 1));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		setTitle("Florencia-Maquina");
@@ -57,6 +59,11 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 		eMaquina.setActionCommand(ELIMINAR);
 		eMaquina.addActionListener(this);
 		panelBotones.add(eMaquina);
+		
+		sHorometro = new JButton("Set Horometro");
+		sHorometro.setActionCommand(ELIMINAR);
+		sHorometro.addActionListener(this);
+		panelBotones.add(sHorometro);
 
 		atras = new JButton("Atras");
 		atras.setActionCommand(ATRAS);
@@ -79,7 +86,7 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 		{
 			Maquina iMaquina = maquinas.get(i);
 			Object[] iOb = { iMaquina.darNombre(), iMaquina.darServicios().size(),
-					iMaquina.darGastos().size(),iMaquina.darHorasTrabajo() };
+					iMaquina.darGastos().size(),iMaquina.darHorasTrabajo(),iMaquina.darHorometro() };
 			data[i] = iOb;
 		}
 
@@ -105,6 +112,10 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 		if(a.equals(ELIMINAR))
 		{
 			eliminarMaquina();
+		}
+		if(a.equals(SET_HOROMETRO))
+		{
+			setHorometro();
 		}
 		if (a.equals(ATRAS)) {
 			this.setVisible(false);
@@ -140,6 +151,24 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 			}
 		}
 		catch (Exception e) 
+		{
+			JOptionPane.showMessageDialog(this, "Selecione Maquina", "ERROR",JOptionPane.ERROR_MESSAGE);
+		
+		}
+	}
+	public void setHorometro()
+	{
+		int index=tabla.getSelectedRow();
+	
+		if(index!=-1)
+		{
+			Double horometro=Double.parseDouble(JOptionPane.showInputDialog("Introduzca el valor: "));
+			finca.darMaquinas().get(index).setHorometro(horometro);
+			setVisible(false);
+			interfazPrincipal.actualizarMaquinas();
+			
+		}
+		else
 		{
 			JOptionPane.showMessageDialog(this, "Selecione Maquina", "ERROR",JOptionPane.ERROR_MESSAGE);
 		
