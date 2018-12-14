@@ -1,19 +1,18 @@
 package mundo;
 
-import java.awt.event.MouseWheelEvent;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.security.KeyStore.PasswordProtection;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 
-import javax.swing.JOptionPane;
 
-import interfaz.InterfazFinca;
 
 public class Finca implements Serializable
 {
@@ -33,7 +32,7 @@ public class Finca implements Serializable
 	
 	private ArrayList<String> proovedores;
 	
-	private ArrayList compras;
+	private ArrayList<Compra> compras;
 	
 	private String archivoFinca;
 	
@@ -91,7 +90,7 @@ public class Finca implements Serializable
 			fechaUltimoCierreEmpleados=null;
 			fechaUltimoCierreLotes=null;
 			proovedores=new ArrayList<String>();
-			compras= new ArrayList<>();
+			compras= new ArrayList<Compra>();
 			
 		}
 	}
@@ -99,7 +98,7 @@ public class Finca implements Serializable
 	
 
 	public Finca(String nRuta,ArrayList<Lote> nLotes,ArrayList<Maquina> nMaquinas,ArrayList<Empleado> nEmpleados,
-			ArrayList<Servicio> nServicios,ArrayList<Insumo> nInsumos,ArrayList<String> nProovedores,ArrayList nCompras,LocalDate nFechaUltimoCierreEmpleados,LocalDate nFechaUltimoCierreLotes)
+			ArrayList<Servicio> nServicios,ArrayList<Insumo> nInsumos,ArrayList<String> nProovedores,ArrayList<Compra> nCompras,LocalDate nFechaUltimoCierreEmpleados,LocalDate nFechaUltimoCierreLotes)
 	{
 		lotes=nLotes;
 		maquinas=nMaquinas;
@@ -158,7 +157,7 @@ public class Finca implements Serializable
 	{
 		return proovedores;
 	}
-	public ArrayList darCompras() 
+	public ArrayList<Compra> darCompras() 
 	{
 		
 		return compras;
@@ -295,6 +294,7 @@ public class Finca implements Serializable
 	}
 	public void nuevaCompra(LocalDate date,Insumo[] insu,String prove)
 	{
+		//se agregan las cantidades que indica la compra
 		for (int i = 0; i < insu.length; i++) 
 		{
 			Insumo iIns=insu[i];
@@ -302,10 +302,8 @@ public class Finca implements Serializable
 			insumos.get(buscarInsumoIndex(iIns.darNombre())).registrarCompra(iIns.darCantidadTotal(), lotes.get(0).darNombre());
 			
 		}
-		ArrayList compra=new ArrayList<>();
-		compra.add(date);
-		compra.add(insu);
-		compra.add(prove);
+		Compra compra=new Compra(date, insu, prove);
+		
 		compras.add(compra);
 		
 	}
@@ -564,21 +562,126 @@ public class Finca implements Serializable
 	{
 		buscarMaquinaNombre(maquinaNombre).agregarGasto(servi, horometro);
 	}
+	
+	//version larga, muchas simplificaciones se pueden hacer!!!!
+	//TODO
 	public void generarReporteCierre()
 	{
+		// Que clase de reporte se requiere de los insumos al cerrar
+		ArrayList<Insumo> reporteInsumos= new ArrayList<>();
+		ArrayList<String> proovedorReporte=new ArrayList<>();
+		ArrayList<Double> proovedorDeudaReporte=new ArrayList<>();
+		
 		if(darFechaUltimoCierreLotes()==null)
 		{
-			ArrayList<Insumo> reporteInsumos= new ArrayList<>();
 			
-			for (int i = 0; i < compras.size(); i++) 
+			
+			
+			for (int i = compras.size()-1; i >-1; i--) 
 			{
-				ArrayList iCompra=(ArrayList) compras.get(i);
-				LocalDate iDate=(LocalDate)iCompra.get(0);
-				Insumo[] iInsumos=(Insumo[])iCompra.get(1);
-				String iProovedor=(String)iCompra.get(2);
+				Compra iCompra=compras.get(i);
+				LocalDate iDate=iCompra.darFecha();
+				Insumo[] iInsumos=iCompra.darInsumos();
+				String iProovedor=iCompra.darProovedor();
+				double iCostoCompra=iCompra.darTotalCompra();
+				if(proovedorReporte.size()==0)
+				{
+					proovedorReporte.add(iProovedor);
+					proovedorDeudaReporte.add(iCostoCompra);
+				}
+				else
+				{
+					Iterator<String> iteraProveedorReporte=proovedorReporte.iterator();
+					//Index para manejar el prooovedor actual y boolean para encontrarlo 
+					int index=0;
+					boolean encontrado=false;
+					//System.out.println("revisar iterador de un arraylist (compra) vacio");
+					while(iteraProveedorReporte.hasNext()&&!(encontrado))
+					{
+						String proovedorRepor=iteraProveedorReporte.next();
+						if(proovedorRepor.equals(iProovedor))
+						{
+							double deudaAnterior=proovedorDeudaReporte.get(index);
+							proovedorDeudaReporte.set(index, deudaAnterior+=iCostoCompra);
+							encontrado=true;
+							
+						}
+					    index+=1;
+					    System.out.println(index);
+					}
+					
+					//nuevo proovedor 
+					System.out.println("Index de nuevo Proovedor= "+index+", .size()= "+proovedorReporte.size());
+					if(!encontrado)
+					{
+						proovedorReporte.add(iProovedor);
+						proovedorDeudaReporte.add(iCostoCompra);
+					}
+					
+				}
 				
 				
 				
+				
+			}
+			//revisar que el tamano de los arraylist son iguales
+			System.out.println("Tamaño de Proove: "+proovedorReporte.size()+", Tamaño de doubles: "+proovedorDeudaReporte.size());
+		}
+		else
+		{
+			//el otro caso, cuando ya se habia hecho un cierre antesç
+			
+			
+			boolean llegamosFecha=false;
+			for (int i = compras.size()-1; i >-1&&!llegamosFecha; i--) 
+			{
+				Compra iCompra=compras.get(i);
+				LocalDate iDate=iCompra.darFecha();
+				Insumo[] iInsumos=iCompra.darInsumos();
+				String iProovedor=iCompra.darProovedor();
+				double iCostoCompra=iCompra.darTotalCompra();
+				if(iDate.isBefore(darFechaUltimoCierreLotes()))
+				{
+					llegamosFecha=true;
+				}
+				else
+				{
+					if(proovedorReporte.size()==0)
+					{
+						proovedorReporte.add(iProovedor);
+						proovedorDeudaReporte.add(iCostoCompra);
+					}
+					else
+					{
+						Iterator<String> iteraProveedorReporte=proovedorReporte.iterator();
+						//Index para manejar el prooovedor actual y boolean para encontrarlo 
+						int index=0;
+						boolean encontrado=false;
+						//System.out.println("revisar iterador de un arraylist (compra) vacio");
+						while(iteraProveedorReporte.hasNext()&&!(encontrado))
+						{
+							String proovedorRepor=iteraProveedorReporte.next();
+							if(proovedorRepor.equals(iProovedor))
+							{
+								double deudaAnterior=proovedorDeudaReporte.get(index);
+								proovedorDeudaReporte.set(index, deudaAnterior+=iCostoCompra);
+								encontrado=true;
+								
+							}
+						    index+=1;
+						    System.out.println(index);
+						}
+						
+						//nuevo proovedor 
+						System.out.println("CIERRE 2. Index de nuevo Proovedor= "+index+", .size()= "+proovedorReporte.size());
+						if(!encontrado)
+						{
+							proovedorReporte.add(iProovedor);
+							proovedorDeudaReporte.add(iCostoCompra);
+						}
+					}
+					
+				}
 			}
 		}
 		

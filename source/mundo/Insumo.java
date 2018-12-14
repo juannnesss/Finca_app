@@ -22,6 +22,7 @@ public class Insumo implements Serializable
 		cantidadTotal=nCantidad;
 		valorUnidad=nValorUnidad;
 		tipoCantidadMedida=nTipoMedida;
+		//manejo de la distribucion del insumo, inicializando 
 		distribucion=new ArrayList<>();
 		Object[] ob=new Object[2];
 		ob[0]=ubicacionInicial;
