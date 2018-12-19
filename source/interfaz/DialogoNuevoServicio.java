@@ -23,7 +23,9 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 
 	private static final String GUARDAR="guardar";
 	private static final String CANCELAR="cancelar";
-	private static final String ESCOGER="escoger";
+	private static final String ESCOGER_MAQUINAS="escogerMaquinas";
+	private static final String ESCOGER_EMPLEADOS="escogerEmpleados";
+	private static final String ESCOGER_INSUMOS="escogerInsumos";
 	private static final String COMBO_BOX_CAMBIO_LOTE="cambioLote";
 	private static final String COMBO_BOX_CAMBIO_MAQUINA="cambioMaquina";
 	private static final String COMBO_BOX_CAMBIO_EMPLEADO="cambioEmpleado";
@@ -39,15 +41,21 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 	private JLabel lbLote;
 	private JComboBox jbLote;
 	
-	private JLabel lbMaquina;
-	private JComboBox jbMaquina;
 	
-	private JLabel lbEmpleado;
-	private JComboBox jbEmpleado;
+	
+	private JLabel numeroMaquinasLabel;
+	private JTextField txtNumeroMaquinas;
+	private JButton bEscogerMaquinas;
+	
+	private JLabel numeroEmpleadosLabel;
+	private JTextField txtNumeroEmpleados;
+	private JButton bEscogerEmpleados;
+	
+
 	
 	private JLabel numeroInsumosLabel;
 	private JTextField txtNumeroInsumos;
-	private JButton bEscoger;
+	private JButton bEscogerInsumos;
 	
 	
 	private JLabel lbCosto;
@@ -58,6 +66,9 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 	
 	private ServiciosVentana interfaz;
 	
+	
+	private String empleadosUsados[];
+	private String maquinasUsadas[];
 	private String insumosUsados[];
 	
 	public DialogoNuevoServicio(ServiciosVentana serviciosVentana)
@@ -79,25 +90,38 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 		jbLote.addActionListener(this);
 		jbLote.setActionCommand(COMBO_BOX_CAMBIO_LOTE);
 
-		lbMaquina=new JLabel("Escoja Maquina:");
-		jbMaquina=new JComboBox();
-		jbMaquina.addActionListener(this);
-		jbMaquina.setActionCommand(COMBO_BOX_CAMBIO_MAQUINA);
+		numeroMaquinasLabel=new JLabel("Numero de Maquinas requeridas:");
+		txtNumeroMaquinas=new JTextField();
+		bEscogerMaquinas=new JButton("Escoger");
+		bEscogerMaquinas.addActionListener(this);
+		bEscogerMaquinas.setActionCommand(ESCOGER_MAQUINAS);
+		//bEscogerMaquinas.setEnabled(false);
+		JPanel auxMaquinas=new JPanel();
+		auxMaquinas.setLayout(new GridLayout(1, 2));
+		auxMaquinas.add(txtNumeroMaquinas);
+		auxMaquinas.add(bEscogerMaquinas);
 
-		lbEmpleado=new JLabel("Escoja Empleado:");
-		jbEmpleado=new JComboBox();
-		jbEmpleado.addActionListener(this);
-		jbEmpleado.setActionCommand(COMBO_BOX_CAMBIO_EMPLEADO);
+		numeroEmpleadosLabel=new JLabel("Numero de Empleados requeridos:");
+		txtNumeroEmpleados=new JTextField();
+		bEscogerEmpleados=new JButton("Escoger");
+		bEscogerEmpleados.addActionListener(this);
+		bEscogerEmpleados.setActionCommand(ESCOGER_EMPLEADOS);
+		bEscogerEmpleados.setEnabled(false);
+		JPanel auxEmpleados=new JPanel();
+		auxEmpleados.setLayout(new GridLayout(1, 2));
+		auxEmpleados.add(txtNumeroEmpleados);
+		auxEmpleados.add(bEscogerEmpleados);
 		
 		numeroInsumosLabel=new JLabel("Numero de Insumos usados:");
 		txtNumeroInsumos=new JTextField();
-		bEscoger=new JButton("Escoger");
-		bEscoger.addActionListener(this);
-		bEscoger.setActionCommand(ESCOGER);
-		JPanel aux=new JPanel();
-		aux.setLayout(new GridLayout(1, 2));
-		aux.add(txtNumeroInsumos);
-		aux.add(bEscoger);
+		bEscogerInsumos=new JButton("Escoger");
+		bEscogerInsumos.addActionListener(this);
+		bEscogerInsumos.setActionCommand(ESCOGER_INSUMOS);
+		bEscogerInsumos.setEnabled(false);
+		JPanel auxInsumos=new JPanel();
+		auxInsumos.setLayout(new GridLayout(1, 2));
+		auxInsumos.add(txtNumeroInsumos);
+		auxInsumos.add(bEscogerInsumos);
 		
 		
 		lbCosto=new JLabel("Costo:");
@@ -109,12 +133,12 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 		add(txtTipo);
 		add(lbLote);
 		add(jbLote);
-		add(lbMaquina);
-		add(jbMaquina);
-		add(lbEmpleado);
-		add(jbEmpleado);
+		add(numeroMaquinasLabel);
+		add(auxMaquinas);
+		add(numeroEmpleadosLabel);
+		add(auxEmpleados);
 		add(numeroInsumosLabel);
-		add(aux);
+		add(auxInsumos);
 		add(lbCosto);
 		add(txtCosto);
 		
@@ -129,8 +153,7 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 		bCancelar.addActionListener(this);
 		add(bCancelar);
 		actualizarLotes(interfaz.darFinca().darLotes());
-		actualizarMaquinas(interfaz.darFinca().darMaquinas());
-		actualizarEmpleados(interfaz.darFinca().darEmpleados());
+	
 
 	}
 	private void actualizarLotes(ArrayList<Lote> lotes) 
@@ -159,51 +182,7 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 	    {
 	        return jbLote.getSelectedItem( ).toString( );
 	    }
-	 private void actualizarMaquinas(ArrayList<Maquina> maquinas) 
-		{
-			 jbMaquina.removeAllItems( );
-		        for( int i = 0; i < maquinas.size( ); i++ )
-		        {
-		            jbMaquina.addItem( ( ( Maquina)maquinas.get( i ) ).darNombre( ) );
-		        }
 
-		        if( maquinas.size( ) > 0 )
-		        {
-		            jbMaquina.setSelectedIndex( 0 );
-		            
-		        }else
-		        {
-		            
-		        }
-			
-		}
-		 public String darMaquinaJcombo( )
-		    {
-		        return jbMaquina.getSelectedItem( ).toString( );
-		    }
-		 private void actualizarEmpleados(ArrayList<Empleado> empleados) 
-			{
-				 jbEmpleado.removeAllItems( );
-			        for( int i = 0; i < empleados.size( ); i++ )
-			        {
-			            jbEmpleado.addItem( ( ( Empleado )empleados.get( i ) ).darNombre( ) );
-			        }
-
-			        if( empleados.size( ) > 0 )
-			        {
-			            jbEmpleado.setSelectedIndex( 0 );
-			            
-			        }else
-			        {
-			            
-			        }
-				
-			}
-			 public String darEmpleadoJcombo( )
-			    {
-			        return jbEmpleado.getSelectedItem( ).toString( );
-			    }
-		
 	
 			 
 	
@@ -217,8 +196,8 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 		String fecha=txtFecha.getText();
 		String nTipo=txtTipo.getText();
 		String nLote=darLoteJcombo();
-		String nMaquina=darMaquinaJcombo();
-		String nEmpleado=darEmpleadoJcombo();
+		String[] nMaquina=(txtNumeroMaquinas.getText().equals(0))?new String[0]:maquinasUsadas;
+		String[] nEmpleado=(txtNumeroEmpleados.getText().equals(0))?new String[0]:empleadosUsados;;
 		
 		String[] nInsumo=(txtNumeroInsumos.getText().equals(0))?new String[0]:insumosUsados;
 				
@@ -236,7 +215,38 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 		
 		
 	}
-	if(a.equals(ESCOGER))
+	if(a.equals(ESCOGER_MAQUINAS))
+	{
+		int intNumero=Integer.parseInt(txtNumeroMaquinas.getText());
+		if(intNumero==0)
+		{
+			maquinasUsadas=new String[0];
+			bEscogerEmpleados.setEnabled(true);
+		}
+		else
+		{
+			DialogoEscogerMaquinas jDia = new DialogoEscogerMaquinas(this, intNumero, interfaz.darFinca().darMaquinas());
+			jDia.setVisible(true);
+			bEscogerEmpleados.setEnabled(true);
+		}
+		
+	}
+	if(a.equals(ESCOGER_EMPLEADOS))
+	{
+		int intNumero=Integer.parseInt(txtNumeroEmpleados.getText());
+		if(intNumero==0)
+		{
+			empleadosUsados=new String[0];
+			bEscogerInsumos.setEnabled(true);
+		}
+		else
+		{
+			DialogoEscogerInsumos jDia = new DialogoEscogerInsumos(this, intNumero, interfaz.darFinca().darInsumos());
+			jDia.setVisible(true);
+			bEscogerInsumos.setEnabled(true);
+		}
+	}
+	if(a.equals(ESCOGER_INSUMOS))
 	{
 		int intNumero=Integer.parseInt(txtNumeroInsumos.getText());
 		if(intNumero==0)
@@ -250,7 +260,6 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 			jDia.setVisible(true);
 			bGuardar.setEnabled(true);
 		}
-		
 	}
 	else if(a.equals(CANCELAR))
 	{
@@ -264,6 +273,16 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 	{
 		
 		insumosUsados=insumoDosis;
+	}
+	public void darEmpleadosUsados(String[] empleados) 
+	{
+		
+		empleadosUsados=empleados;
+	}
+	public void darMaquinasUsadas(String[] maquinas) 
+	{
+		maquinasUsadas=maquinas;
+		
 	}
 
 }

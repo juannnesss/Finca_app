@@ -138,15 +138,12 @@ public class ServiciosVentana extends JFrame implements ActionListener
 		return finca;
 	}
 
-	public void nuevoServicio(String dia, String mes, String anio, String tipo, String nombreLote, String maquina,
-			String empleado,String[] insumos, String costo) 
+	public void nuevoServicio(String dia, String mes, String anio, String tipo, String nombreLote, String[] maquinas,
+			String[] empleados,String[] insumos, String costo) 
 	{
 		LocalDate date = LocalDate.of(Integer.parseInt(anio), Integer.parseInt(mes), Integer.parseInt(dia));
 		Lote nLote = finca.buscarLoteNombre(nombreLote);
-		ArrayList<Maquina> maquinas = new ArrayList<>();
-		maquinas.add(finca.buscarMaquinaNombre(maquina));
-		ArrayList<Empleado> empleados = new ArrayList<>();
-		empleados.add(finca.buscarEmpleadoNombre(empleado));
+		
 		
 		
 		finca.nuevoServicio(date, tipo, nLote, maquinas, empleados,insumos, Double.parseDouble(costo));

@@ -233,10 +233,28 @@ public class Finca implements Serializable
 		
 	}
 	
-	public void nuevoServicio(LocalDate nFecha, String nTipo, Lote lote, ArrayList<Maquina> nMaquinas, ArrayList<Empleado> nEmpleados,String[] nInsumos, double nCostoXArea)
+	public void nuevoServicio(LocalDate nFecha, String nTipo, Lote lote, String[] nMaquinas, String[] nEmpleados,String[] nInsumos, double nCostoXArea)
 	{
 		double areaLote=lote.darArea();
-		ArrayList<Insumo> usados=new ArrayList<>();
+		//maquinas
+		ArrayList<Maquina> maquinasUsadas=new ArrayList<>();
+		for (int i = 0; i < nMaquinas.length; i++) 
+		{
+			String iMaquina=nMaquinas[i];
+			maquinasUsadas.add(buscarMaquinaNombre(iMaquina));
+			
+		}
+		 
+		//empleados
+		ArrayList<Empleado> empleadosUsados=new ArrayList<>();
+		for (int i = 0; i < nEmpleados.length; i++) 
+		{
+			String iEmpleado=nEmpleados[i];
+			empleadosUsados.add(buscarEmpleadoNombre(iEmpleado));
+			
+		}
+		
+		ArrayList<Insumo> insumosUsados=new ArrayList<>();
 		for (int i = 0; i < nInsumos.length; i++) 
 		{
 			String[] iS=nInsumos[i].split("@");
@@ -246,21 +264,21 @@ public class Finca implements Serializable
 			double cantidad=dosis*areaLote;
 			System.out.println(buscarInsumoIndex(nombre));
 			insumos.get(buscarInsumoIndex(nombre)).registrarCompra(-cantidad , lotes.get(0).darNombre());
-			usados.add(new Insumo(nombre, cantidad, insumos.get(buscarInsumoIndex(nombre)).darValorUnidad(), insumos.get(buscarInsumoIndex(nombre)).darTipoMedida(),lotes.get(0).darNombre()));
+			insumosUsados.add(new Insumo(nombre, cantidad, insumos.get(buscarInsumoIndex(nombre)).darValorUnidad(), insumos.get(buscarInsumoIndex(nombre)).darTipoMedida(),lotes.get(0).darNombre()));
 			
 			
 		}
-		Servicio servicio=new Servicio(nFecha, nTipo, lote,lote.darCultivoActual(), nMaquinas, nEmpleados,usados, nCostoXArea);
+		Servicio servicio=new Servicio(nFecha, nTipo, lote,lote.darCultivoActual(), maquinasUsadas, empleadosUsados,insumosUsados, nCostoXArea);
 		
 		lote.darCultivoActual().agregarServicio(servicio);
-		for(int m=0;m<nMaquinas.size();m++)
+		for(int m=0;m<maquinasUsadas.size();m++)
 		{
-			Maquina mMaq=nMaquinas.get(m);
+			Maquina mMaq=maquinasUsadas.get(m);
 			mMaq.agregarTrabajo(servicio);
 		}
-		for(int e=0;e<nEmpleados.size();e++)
+		for(int e=0;e<empleadosUsados.size();e++)
 		{
-			Empleado eEmp=nEmpleados.get(e);
+			Empleado eEmp=empleadosUsados.get(e);
 			eEmp.agregarServicio(servicio);
 		}
 		servicios.add(servicio);
@@ -276,6 +294,7 @@ public class Finca implements Serializable
 	}
 	public void nuevoInsumo(String nNombre,int nCantidad,double nValorUnidad,String nTipoMedida)
 	{
+		//se asume que la ubicacion es la florencia
 		if(existeInsumo(nNombre)==false)
 		{
 			insumos.add(new Insumo(nNombre, nCantidad,nValorUnidad,nTipoMedida,lotes.get(0).darNombre()));

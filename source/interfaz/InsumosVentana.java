@@ -28,6 +28,7 @@ public class InsumosVentana extends JFrame implements ActionListener
 	
 	private final static String NUEVO = "nuevo";
 	private final static String ELIMINAR = "eliminar";
+	private final static String PROOVEDOR="proovedor";
 	private final static String REGISTRAR="registrar";
 	private final static String ATRAS = "atras";
 	private final static String[] columTags = { "Nombre", "Cantidad", "Valor Unidad","Medicion"};
@@ -38,6 +39,7 @@ public class InsumosVentana extends JFrame implements ActionListener
 
 	private JButton nInsumo;
 	private JButton eInsumo;
+	private JButton nProovedor;
 	private JButton registrar;
 	private JButton atras;
 	
@@ -52,7 +54,7 @@ public class InsumosVentana extends JFrame implements ActionListener
 		finca = interfazPrincipal.darFinca();
 		setLayout(new BorderLayout());
 		JPanel panelBotones = new JPanel();
-		panelBotones.setLayout(new GridLayout(4, 1));
+		panelBotones.setLayout(new GridLayout(5, 1));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		setTitle("Florencia-Insumos");
@@ -68,7 +70,12 @@ public class InsumosVentana extends JFrame implements ActionListener
 		eInsumo.addActionListener(this);
 		panelBotones.add(eInsumo);
 		
-		registrar=new JButton("Registrar Compra");
+		nProovedor = new JButton("Nuevo Proovedor");
+		nProovedor.setActionCommand(PROOVEDOR);
+		nProovedor.addActionListener(this);
+		panelBotones.add(nProovedor);
+		
+		registrar=new JButton("Nueva Compra");
 		registrar.setActionCommand(REGISTRAR);
 		registrar.addActionListener(this);
 		panelBotones.add(registrar);
@@ -93,7 +100,7 @@ public class InsumosVentana extends JFrame implements ActionListener
 		for (int i = 0; i < numeroInsumos; i++) 
 		{
 			Insumo iInsumo = insumos.get(i);
-			Object[] iOb = { iInsumo.darNombre(), iInsumo.darCantidad(),iInsumo.darValorUnidad(),
+			Object[] iOb = { iInsumo.darNombre(), iInsumo.darCantidadTotal(),iInsumo.darValorUnidad(),
 					(iInsumo.darTipoMedida().equals(KILOGRAMOS)?KILOGRAMOS:LITROS) };
 			data[i] = iOb;
 		}
@@ -124,6 +131,20 @@ public class InsumosVentana extends JFrame implements ActionListener
 		{
 			eliminarInsumo();
 		}
+		if(a.equals(PROOVEDOR))
+		{
+			String proovedor=JOptionPane.showInputDialog(this,"Introduzca el Nombre del Nuevo Proovedor",
+					"Nuevo Proovedor",JOptionPane.INFORMATION_MESSAGE);
+			if(proovedor.isEmpty())
+			{
+				JOptionPane.showMessageDialog(this, "Ingrese Proovedor Valido", "ERROR",JOptionPane.ERROR_MESSAGE);
+
+			}
+			else
+			{
+				finca.nuevoProovedor(proovedor);
+			}
+		}
 		if(a.equals(REGISTRAR))
 		{
 			try
@@ -135,7 +156,8 @@ public class InsumosVentana extends JFrame implements ActionListener
 				try
 				{
 					double cantidad=Double.parseDouble((rta));
-					insumo.registrarCompra(cantidad);
+					//se asume la distribucion en el lote 0
+					insumo.registrarCompra(cantidad,finca.darLotes().get(0).darNombre());
 					interfazPrincipal.actualizarInsumos();
 					setVisible(false);
 				}
