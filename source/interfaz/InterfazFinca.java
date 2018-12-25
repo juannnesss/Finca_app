@@ -198,7 +198,11 @@ public class InterfazFinca extends JFrame implements ActionListener
 			
 			if (seleccion==JFileChooser.APPROVE_OPTION)
 			 {
-				fin = new Finca(fileFinca);
+				File fileMaquinas=new File("./data/maquinas.properties");
+				File fileEmpleados=new File("./data/empleados.properties");
+				
+				System.out.println(fileEmpleados.getAbsolutePath());
+				fin = new Finca(fileFinca,fileEmpleados,fileMaquinas);
 							
 			 }
 			

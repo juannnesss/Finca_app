@@ -61,7 +61,7 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 		panelBotones.add(eMaquina);
 		
 		sHorometro = new JButton("Set Horometro");
-		sHorometro.setActionCommand(ELIMINAR);
+		sHorometro.setActionCommand(SET_HOROMETRO);
 		sHorometro.addActionListener(this);
 		panelBotones.add(sHorometro);
 
