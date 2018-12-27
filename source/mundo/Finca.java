@@ -38,15 +38,18 @@ public class Finca implements Serializable
 	private ArrayList<Compra> compras;
 	
 	private String archivoFinca;
+	
+	private String archivoLotes;
 	private String archivoEmpleados;
 	private String archivoMaquinas;
+	private String archivoInsumos;
 	
 	private LocalDate fechaUltimoCierreEmpleados;
 	
 	private LocalDate fechaUltimoCierreLotes;
 	
 	@SuppressWarnings("resource")
-	public Finca(File fileRutaFinca,File fileRutaEmpleados,File fileRutaMaquinas) throws Exception
+	public Finca(File fileRutaFinca,File fileRutaLotes,File fileRutaEmpleados,File fileRutaMaquinas,File fileRutaInsumos) throws Exception
 	{
 		archivoFinca=fileRutaFinca.getAbsolutePath();
 		
@@ -59,54 +62,35 @@ public class Finca implements Serializable
 
 				ObjectInputStream ois=new ObjectInputStream(new FileInputStream(fileRutaFinca));
 				Finca finca=(Finca)ois.readObject();
-				lotes=(ArrayList<Lote>)finca.darLotes();
-				//maquinas=(ArrayList<Maquina>)finca.darMaquinas();
+				//lotes=(ArrayList<Lote>)finca.darLotes();
 				
-				Properties infoMaquinas=new Properties();
-				
-		        FileInputStream inM = new FileInputStream( fileRutaMaquinas );
+				System.out.println("Lotes");
+				Properties infoLotes=validarProperties(fileRutaLotes, "Lotes");
+		        cargarLotes(infoLotes);
 		        
-		        try
-		        {
-		          infoMaquinas.load(inM);
-		          
-		          
-		            inM.close( );
-		            
-		        }
-		        catch( Exception e )
-		        {
-		            throw new Exception( "Formato invalido Maquinas" );
-		        }
+				archivoLotes=fileRutaLotes.getAbsolutePath();
+				//maquinas=(ArrayList<Maquina>)finca.darMaquinas();
+				System.out.println("Maquinas");
+				Properties infoMaquinas=validarProperties(fileRutaMaquinas, "Maquinas");
 		        
 		        cargarMaquinas(infoMaquinas);
 		        
 				archivoMaquinas=fileRutaMaquinas.getAbsolutePath();
 				//empleados=(ArrayList<Empleado>)finca.darEmpleados();
-				
-				Properties infoEmpleados=new Properties();
-				
-		        FileInputStream inE = new FileInputStream( fileRutaEmpleados );
-		        
-		        try
-		        {
-		          infoEmpleados.load(inE);
-		          
-		          
-		            inE.close( );
-		            
-		        }
-		        catch( Exception e )
-		        {
-		            throw new Exception( "Formato invalido Empleados" );
-		        }
+				System.out.println("Empleados");
+				Properties infoEmpleados=validarProperties(fileRutaEmpleados, "Empleados");
 		        
 		        cargarEmpleados(infoEmpleados);
 		        
 				archivoEmpleados=fileRutaEmpleados.getAbsolutePath();
 				
 				//arreglo del cambio de tipo en la cantidad de los isumos, de int a double
-				insumos=(ArrayList<Insumo>)finca.darInsumos();
+				//insumos=(ArrayList<Insumo>)finca.darInsumos();
+				System.out.println("Insumos");
+		        Properties infoInsumos=validarProperties(fileRutaInsumos, "Insumos");
+		        cargarInsumos(infoInsumos);
+		        
+				archivoInsumos=fileRutaInsumos.getAbsolutePath();
 				
 				servicios=(ArrayList<Servicio>)finca.darServicios();
 				fechaUltimoCierreEmpleados=finca.darFechaUltimoCierreEmpleados();
@@ -161,7 +145,51 @@ public class Finca implements Serializable
 		proovedores=nProovedores;
 		compras=nCompras;
 	}
-	
+	public Properties validarProperties(File valid,String queTipo) throws Exception
+	{
+		Properties info=new Properties();
+		
+        FileInputStream in = new FileInputStream( valid );
+        
+        try
+        {
+          info.load(in);
+          
+          
+            in.close( );
+            
+        }
+        catch( Exception e )
+        {
+            throw new Exception( "Formato invalido " +queTipo);
+        }
+        return info;
+        
+        
+	}
+	public void cargarLotes(Properties infoLotes) 
+	{
+		lotes=new ArrayList<Lote>();
+		String total=infoLotes.getProperty("total");
+		
+		int intTotal=Integer.parseInt(total);
+		System.out.println(intTotal);
+		
+		for(int i=1;i<=intTotal;i++)
+		{
+			
+			String loteInfo=infoLotes.getProperty("lote."+i);
+			
+			String[] dataLote=loteInfo.split("[@]");
+			
+			
+			for(int j=0;j<dataLote.length;j++)
+			{
+				nuevoLote(dataLote[0], dataLote[1], Double.parseDouble(dataLote[2]), Double.parseDouble(dataLote[3]));
+			}
+		}
+			
+	}
 	public void cargarEmpleados(Properties infoEmpleados) 
 	{
 		empleados=new ArrayList<Empleado>();
@@ -222,14 +250,14 @@ public class Finca implements Serializable
 		for(int i=1;i<=intTotal;i++)
 		{
 			
-			String insumoInfo=infoInsumos.getProperty("maquina."+i);
+			String insumoInfo=infoInsumos.getProperty("insumo."+i);
 			
 			String[] dataInsumo=insumoInfo.split("[@]");
 			
 			
 			for(int j=0;j<dataInsumo.length;j++)
 			{
-				
+				nuevoInsumo(dataInsumo[0], Double.parseDouble(dataInsumo[1]), Double.parseDouble(dataInsumo[2]), dataInsumo[3]);
 				
 				
 			}
@@ -419,7 +447,7 @@ public class Finca implements Serializable
 		Cultivo cultivo=new Cultivo(nProducto, nPeriodo,lote);
 		lote.actualizarCultivoActual(cultivo,corta);
 	}
-	public void nuevoInsumo(String nNombre,int nCantidad,double nValorUnidad,String nTipoMedida)
+	public void nuevoInsumo(String nNombre,double nCantidad,double nValorUnidad,String nTipoMedida)
 	{
 		//se asume que la ubicacion es la florencia
 		if(existeInsumo(nNombre)==false)

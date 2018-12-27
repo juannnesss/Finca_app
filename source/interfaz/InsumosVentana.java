@@ -25,6 +25,7 @@ public class InsumosVentana extends JFrame implements ActionListener
 {
 	public final static String KILOGRAMOS="Kg.";
 	public final static String LITROS="Lt.";
+	public final static String BULTOS="Bultos.";
 	
 	private final static String NUEVO = "nuevo";
 	private final static String ELIMINAR = "eliminar";
@@ -101,7 +102,7 @@ public class InsumosVentana extends JFrame implements ActionListener
 		{
 			Insumo iInsumo = insumos.get(i);
 			Object[] iOb = { iInsumo.darNombre(), iInsumo.darCantidadTotal(),iInsumo.darValorUnidad(),
-					(iInsumo.darTipoMedida().equals(KILOGRAMOS)?KILOGRAMOS:LITROS) };
+					iInsumo.darTipoMedida() };
 			data[i] = iOb;
 		}
 
