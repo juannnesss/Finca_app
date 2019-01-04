@@ -43,7 +43,7 @@ public class DialogoEscogerEmpleados extends JDialog implements ActionListener
 		interfaz=inter;
 		empleados=nEmpleados;
 		numeroEmpleados=nNumeroEmpleados;
-		setLayout(new GridLayout(numeroEmpleados+2,1));
+		setLayout(new GridLayout(numeroEmpleados+2,2));
 		setTitle("Escoja Empleados");
 		jbEmpleados=new JComboBox[numeroEmpleados];
 		
@@ -52,6 +52,7 @@ public class DialogoEscogerEmpleados extends JDialog implements ActionListener
 		
 		
 		add(lbEmpleados);
+		add(new JLabel(""));
 		
 		
 		for(int i=0;i<numeroEmpleados;i++)
@@ -61,7 +62,7 @@ public class DialogoEscogerEmpleados extends JDialog implements ActionListener
 			jbi.setActionCommand(""+i);
 			
 			jbEmpleados[i]=jbi;
-			
+			add(new JLabel("Empleado "+(i+1)));
 			add(jbi);
 			
 			

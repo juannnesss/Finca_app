@@ -200,6 +200,7 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 		String[] nEmpleado=(txtNumeroEmpleados.getText().equals(0))?new String[0]:empleadosUsados;;
 		
 		String[] nInsumo=(txtNumeroInsumos.getText().equals(0))?new String[0]:insumosUsados;
+		
 				
 		String nCosto=txtCosto.getText();
 		String[] date=fecha.split("[.]");
@@ -218,6 +219,7 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 	if(a.equals(ESCOGER_MAQUINAS))
 	{
 		int intNumero=Integer.parseInt(txtNumeroMaquinas.getText());
+		
 		if(intNumero==0)
 		{
 			maquinasUsadas=new String[0];
@@ -241,7 +243,7 @@ public class DialogoNuevoServicio extends JDialog implements ActionListener
 		}
 		else
 		{
-			DialogoEscogerInsumos jDia = new DialogoEscogerInsumos(this, intNumero, interfaz.darFinca().darInsumos());
+			DialogoEscogerEmpleados jDia = new DialogoEscogerEmpleados(this, intNumero, interfaz.darFinca().darEmpleados());
 			jDia.setVisible(true);
 			bEscogerInsumos.setEnabled(true);
 		}

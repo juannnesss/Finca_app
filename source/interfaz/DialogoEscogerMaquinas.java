@@ -45,7 +45,7 @@ public class DialogoEscogerMaquinas extends JDialog implements ActionListener
 		interfaz=inter;
 		maquinas=nMaquinas;
 		numeroMaquinas=nNumeroMaquinas;
-		setLayout(new GridLayout(numeroMaquinas+2,1));
+		setLayout(new GridLayout(numeroMaquinas+2,2));
 		setTitle("Escoja Maquinas");
 		jbMaquinas=new JComboBox[numeroMaquinas];
 		
@@ -54,6 +54,7 @@ public class DialogoEscogerMaquinas extends JDialog implements ActionListener
 		
 		
 		add(lbMaquina);
+		add(new JLabel(""));
 		
 		
 		for(int i=0;i<numeroMaquinas;i++)
@@ -63,7 +64,8 @@ public class DialogoEscogerMaquinas extends JDialog implements ActionListener
 			jbi.setActionCommand(""+i);
 			JTextField txtDosisI=new JTextField();
 			jbMaquinas[i]=jbi;
-			
+			JLabel lbi=new JLabel("Maquina "+(i+1));
+			add(lbi);
 			add(jbi);
 			
 			
