@@ -1,17 +1,24 @@
 package mundo;
 
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Reader;
 import java.io.Serializable;
-
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
+
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 
 
@@ -62,35 +69,40 @@ public class Finca implements Serializable
 
 				ObjectInputStream ois=new ObjectInputStream(new FileInputStream(fileRutaFinca));
 				Finca finca=(Finca)ois.readObject();
-				//lotes=(ArrayList<Lote>)finca.darLotes();
 				
-				System.out.println("Lotes");
-				Properties infoLotes=validarProperties(fileRutaLotes, "Lotes");
-		        cargarLotes(infoLotes);
-		        
+				
+				System.out.println("LotesCSV");
+				
+				//Properties infoLotes=validarProperties(fileRutaLotes, "Lotes");
 				archivoLotes=fileRutaLotes.getAbsolutePath();
-				//maquinas=(ArrayList<Maquina>)finca.darMaquinas();
-				System.out.println("Maquinas");
-				Properties infoMaquinas=validarProperties(fileRutaMaquinas, "Maquinas");
+		        cargarLotesCSV(archivoLotes);
 		        
-		        cargarMaquinas(infoMaquinas);
-		        
-				archivoMaquinas=fileRutaMaquinas.getAbsolutePath();
-				//empleados=(ArrayList<Empleado>)finca.darEmpleados();
-				System.out.println("Empleados");
-				Properties infoEmpleados=validarProperties(fileRutaEmpleados, "Empleados");
-		        
-		        cargarEmpleados(infoEmpleados);
-		        
-				archivoEmpleados=fileRutaEmpleados.getAbsolutePath();
 				
-				//arreglo del cambio de tipo en la cantidad de los isumos, de int a double
-				//insumos=(ArrayList<Insumo>)finca.darInsumos();
-				System.out.println("Insumos");
-		        Properties infoInsumos=validarProperties(fileRutaInsumos, "Insumos");
-		        cargarInsumos(infoInsumos);
+				
+				
+				System.out.println("MaquinasCSV");
+				
+				//Properties infoMaquinas=validarProperties(fileRutaMaquinas, "Maquinas");
+				archivoMaquinas=fileRutaMaquinas.getAbsolutePath();
+		        cargarMaquinasCSV(archivoMaquinas);
 		        
-				archivoInsumos=fileRutaInsumos.getAbsolutePath();
+				
+			
+		        
+				System.out.println("EmpleadosCSV");
+				//Properties infoEmpleados=validarProperties(fileRutaEmpleados, "Empleados");
+				archivoEmpleados=fileRutaEmpleados.getAbsolutePath();
+				cargarEmpleadosCSV(archivoEmpleados);
+		        
+				
+				
+				System.out.println("InsumosCSV");
+				
+		        //Properties infoInsumos=validarProperties(fileRutaInsumos, "Insumos");
+		        archivoInsumos=fileRutaInsumos.getAbsolutePath();
+		        cargarInsumosCSV(archivoInsumos);
+		        
+				
 				
 				servicios=(ArrayList<Servicio>)finca.darServicios();
 				fechaUltimoCierreEmpleados=finca.darFechaUltimoCierreEmpleados();
@@ -167,6 +179,32 @@ public class Finca implements Serializable
         
         
 	}
+	public void cargarLotesCSV(String rutaLotesCSV)
+	{
+		lotes=new ArrayList<Lote>();
+		try
+		{
+			Reader reader=Files.newBufferedReader(Paths.get(rutaLotesCSV));
+			CSVParser parser=new CSVParserBuilder().withSeparator('@').withIgnoreQuotations(true).build();
+			CSVReader csvReader=new CSVReaderBuilder(reader).withSkipLines(0).withCSVParser(parser).build();			//pasando por alto la primera fila
+			
+			//pasando por alto la primera fila
+			
+			String[] linea=csvReader.readNext();
+			while((linea=csvReader.readNext())!=null)
+			{
+
+				nuevoLote(linea[1], linea[2], Double.parseDouble(linea[3]), Double.parseDouble(linea[4]));
+				
+				
+			}
+			
+		}
+		catch (Exception e) 
+		{
+			System.out.println("Error en el CSV Lotes");
+		}
+	}
 	public void cargarLotes(Properties infoLotes) 
 	{
 		lotes=new ArrayList<Lote>();
@@ -189,6 +227,37 @@ public class Finca implements Serializable
 			}
 		}
 			
+	}
+	public void cargarEmpleadosCSV(String rutaEmpleadosCSV)
+	{
+		empleados=new ArrayList<Empleado>();
+
+		try
+		{
+			Reader reader=Files.newBufferedReader(Paths.get(rutaEmpleadosCSV));
+			CSVParser parser=new CSVParserBuilder().withSeparator('@').withIgnoreQuotations(true).build();
+			CSVReader csvReader=new CSVReaderBuilder(reader).withSkipLines(0).withCSVParser(parser).build();			//pasando por alto la primera fila
+			
+			
+			//pasando por alto la primera fila
+			
+			String[] linea=csvReader.readNext();
+			while((linea=csvReader.readNext())!=null)
+			{
+
+				String[] date=linea[3].split("[/]");
+				
+				LocalDate fecha= LocalDate.of(Integer.parseInt(date[2]), Integer.parseInt(date[1]),Integer.parseInt(date[0]));
+				nuevoEmpleado( linea[1], linea[2],fecha, linea[4], linea[5], linea[6],linea[7], Double.parseDouble(linea[8]));
+				
+				
+			}
+			
+		}
+		catch (Exception e) 
+		{
+			System.out.println("Error en el CSV Empleados");
+		}
 	}
 	public void cargarEmpleados(Properties infoEmpleados) 
 	{
@@ -216,7 +285,28 @@ public class Finca implements Serializable
 		}
 			
 	}
-	public void cargarMaquinas(Properties infoMaquinas) 
+	public void cargarMaquinasCSV(String rutaMaquinasCSV)
+	{
+		maquinas=new ArrayList<Maquina>();
+		try
+		{
+			Reader reader=Files.newBufferedReader(Paths.get(rutaMaquinasCSV));
+			CSVParser parser=new CSVParserBuilder().withSeparator('@').withIgnoreQuotations(true).build();
+			CSVReader csvReader=new CSVReaderBuilder(reader).withSkipLines(0).withCSVParser(parser).build();			//pasando por alto la primera fila
+			
+			String[] linea=csvReader.readNext();
+			while((linea=csvReader.readNext())!=null)
+			{
+				nuevaMaquina(linea[1], Integer.parseInt(linea[2]));
+			}
+			
+		}
+		catch (Exception e) 
+		{
+			System.out.println("Error en el CSV Maquinas");
+		}
+	}
+	public void cargarMaquinas(Properties infoMaquinas)
 	{
 		maquinas=new ArrayList<Maquina>();
 		String total=infoMaquinas.getProperty("total");
@@ -239,6 +329,32 @@ public class Finca implements Serializable
 			}
 		}
 			
+	}
+	public void cargarInsumosCSV(String rutaInsumosCSV)
+	{
+		insumos=new ArrayList<Insumo>();
+
+		try
+		{
+			Reader reader=Files.newBufferedReader(Paths.get(rutaInsumosCSV));
+			CSVParser parser=new CSVParserBuilder().withSeparator('@').withIgnoreQuotations(true).build();
+			CSVReader csvReader=new CSVReaderBuilder(reader).withSkipLines(0).withCSVParser(parser).build();			//pasando por alto la primera fila
+			
+			//pasando por alto la primera fila
+			
+			String[] linea=csvReader.readNext();
+			while((linea=csvReader.readNext())!=null)
+			{
+
+				nuevoInsumo(linea[1], Double.parseDouble(linea[2]), Double.parseDouble(linea[3]), linea[4]);
+				
+			}
+			
+		}
+		catch (Exception e) 
+		{
+			System.out.println("Error en el CSV Insumo");
+		}
 	}
 	public void cargarInsumos(Properties infoInsumos)
 	{

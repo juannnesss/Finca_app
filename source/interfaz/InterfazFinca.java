@@ -198,10 +198,10 @@ public class InterfazFinca extends JFrame implements ActionListener
 			
 			if (seleccion==JFileChooser.APPROVE_OPTION)
 			 {
-				File fileLotes=new File("./data/lotes.properties");
-				File fileMaquinas=new File("./data/maquinas.properties");
-				File fileEmpleados=new File("./data/empleados.properties");
-				File fileInsumos=new File("./data/insumos.properties");
+				File fileLotes=new File("./data/lotes.csv");
+				File fileMaquinas=new File("./data/maquinas.csv");
+				File fileEmpleados=new File("./data/empleados.csv");
+				File fileInsumos=new File("./data/insumos.csv");
 				
 				System.out.println(fileEmpleados.getAbsolutePath());
 				fin = new Finca(fileFinca,fileLotes,fileEmpleados,fileMaquinas,fileInsumos);
