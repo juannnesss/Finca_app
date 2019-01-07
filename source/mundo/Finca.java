@@ -202,32 +202,10 @@ public class Finca implements Serializable
 		}
 		catch (Exception e) 
 		{
-			System.out.println("Error en el CSV Lotes");
+			System.out.println("Error en el CSV Lotes"+ e.getMessage());
 		}
 	}
-	public void cargarLotes(Properties infoLotes) 
-	{
-		lotes=new ArrayList<Lote>();
-		String total=infoLotes.getProperty("total");
-		
-		int intTotal=Integer.parseInt(total);
-		System.out.println(intTotal);
-		
-		for(int i=1;i<=intTotal;i++)
-		{
-			
-			String loteInfo=infoLotes.getProperty("lote."+i);
-			
-			String[] dataLote=loteInfo.split("[@]");
-			
-			
-			for(int j=0;j<dataLote.length;j++)
-			{
-				nuevoLote(dataLote[0], dataLote[1], Double.parseDouble(dataLote[2]), Double.parseDouble(dataLote[3]));
-			}
-		}
-			
-	}
+
 	public void cargarEmpleadosCSV(String rutaEmpleadosCSV)
 	{
 		empleados=new ArrayList<Empleado>();
@@ -259,32 +237,9 @@ public class Finca implements Serializable
 			System.out.println("Error en el CSV Empleados");
 		}
 	}
-	public void cargarEmpleados(Properties infoEmpleados) 
-	{
-		empleados=new ArrayList<Empleado>();
-		String total=infoEmpleados.getProperty("total");
-		
-		int intTotal=Integer.parseInt(total);
-		System.out.println(intTotal);
-		for(int i=1;i<=intTotal;i++)
-		{
+	
 			
-			String empleadoInfo=infoEmpleados.getProperty("empleado."+i);
-			
-			String[] dataEmpleado=empleadoInfo.split("[@]");
-			
-			
-			for(int j=0;j<dataEmpleado.length;j++)
-			{
-				String[] date=dataEmpleado[2].split("[/]");
-				System.out.println(dataEmpleado[3]);
-				LocalDate fecha= LocalDate.of(Integer.parseInt(date[2]), Integer.parseInt(date[1]),Integer.parseInt(date[0]));
-				nuevoEmpleado(dataEmpleado[0], dataEmpleado[1], fecha, dataEmpleado[3], dataEmpleado[4], dataEmpleado[5], dataEmpleado[6], Double.parseDouble(dataEmpleado[7]));
-				
-			}
-		}
-			
-	}
+	
 	public void cargarMaquinasCSV(String rutaMaquinasCSV)
 	{
 		maquinas=new ArrayList<Maquina>();
@@ -306,30 +261,8 @@ public class Finca implements Serializable
 			System.out.println("Error en el CSV Maquinas");
 		}
 	}
-	public void cargarMaquinas(Properties infoMaquinas)
-	{
-		maquinas=new ArrayList<Maquina>();
-		String total=infoMaquinas.getProperty("total");
-		
-		int intTotal=Integer.parseInt(total);
-		
-		for(int i=1;i<=intTotal;i++)
-		{
-			
-			String maquinaInfo=infoMaquinas.getProperty("maquina."+i);
-			
-			String[] dataMaquina=maquinaInfo.split("[@]");
-			
-			
-			for(int j=0;j<dataMaquina.length;j++)
-			{
-				
-				nuevaMaquina(dataMaquina[0],Integer.parseInt(dataMaquina[1]));
-				
-			}
-		}
-			
-	}
+	
+	
 	public void cargarInsumosCSV(String rutaInsumosCSV)
 	{
 		insumos=new ArrayList<Insumo>();
@@ -347,8 +280,9 @@ public class Finca implements Serializable
 			{
 
 				nuevoInsumo(linea[1], Double.parseDouble(linea[2]), Double.parseDouble(linea[3]), linea[4]);
-				
+				System.out.println(linea[0]);
 			}
+			reader.close();
 			
 		}
 		catch (Exception e) 
@@ -356,29 +290,7 @@ public class Finca implements Serializable
 			System.out.println("Error en el CSV Insumo");
 		}
 	}
-	public void cargarInsumos(Properties infoInsumos)
-	{
-		insumos=new ArrayList<Insumo>();
-		String total=infoInsumos.getProperty("total");
-		
-		int intTotal=Integer.parseInt(total);
-		
-		for(int i=1;i<=intTotal;i++)
-		{
-			
-			String insumoInfo=infoInsumos.getProperty("insumo."+i);
-			
-			String[] dataInsumo=insumoInfo.split("[@]");
-			
-			
-			for(int j=0;j<dataInsumo.length;j++)
-			{
-				nuevoInsumo(dataInsumo[0], Double.parseDouble(dataInsumo[1]), Double.parseDouble(dataInsumo[2]), dataInsumo[3]);
-				
-				
-			}
-		}
-	}
+	
 		
 	
 	
