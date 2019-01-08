@@ -182,44 +182,31 @@ public class InterfazFinca extends JFrame implements ActionListener
 
 	public static void main(String[] args) 
 	{
-		JFileChooser fc=new JFileChooser("./data");
-		fc.setDialogTitle("Seleccione el Archivo:");
-		int seleccion=fc.showSaveDialog(null);
-		
-		
-		
-		 
-		
+		File fileProperties=new File("./data/FlorenciaProperties.properties");
+		File fileLotes=new File("./data/lotes.csv");
+		File fileMaquinas=new File("./data/maquinas.csv");
+		File fileEmpleados=new File("./data/empleados.csv");
+		File fileInsumos=new File("./data/insumos.csv");
+		File fileProovedores=new File("./data/proovedores.csv");
+		File fileServicios=new File("./data/servicios.csv");
+		File fileCompras=new File("./data/compras.csv");
+		File fileCultivos=new File("./data/cultivos.csv");
 		
 		Finca fin = null;
-		try 
-		{
-			File fileFinca=fc.getSelectedFile();
-			
-			if (seleccion==JFileChooser.APPROVE_OPTION)
-			 {
-				File fileLotes=new File("./data/lotes.csv");
-				File fileMaquinas=new File("./data/maquinas.csv");
-				File fileEmpleados=new File("./data/empleados.csv");
-				File fileInsumos=new File("./data/insumos.csv");
-				File fileProovedores=new File("./data/proovedores.csv");
-				File fileServicios=new File("./data/servicios.csv");
-				File fileCompras=new File("./data/compras.csv");
-				File fileCultivos=new File("./data/cultivos.csv");
-				
-				System.out.println(fileEmpleados.getAbsolutePath());
-				fin = new Finca(fileFinca,fileLotes,fileEmpleados,fileMaquinas,fileInsumos,fileProovedores
-						,fileServicios,fileCompras,fileCultivos);
-							
-			 }
-			
-			
-		} 
+		try{
+			fin = new Finca(fileProperties,fileLotes,fileEmpleados,fileMaquinas,fileInsumos,fileProovedores
+					,fileServicios,fileCompras,fileCultivos);
+					
+		}
 		catch (Exception e) 
 		{
-			e.printStackTrace();
-			System.exit(1);
+			System.out.println("error Main new Finca: "+e.getMessage());
+			
 		}
+		
+		
+		
+		
 		InterfazFinca id = new InterfazFinca(fin);
 		id.setVisible(true);
 	}

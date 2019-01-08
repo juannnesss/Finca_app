@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.Writer;
@@ -51,7 +52,7 @@ public class Finca implements Serializable
 	
 	private ArrayList<Compra> compras;
 	
-	private String archivoFinca;
+	private String archivoFincaProperties;
 	
 	private String archivoLotes;
 	private String archivoEmpleados;
@@ -67,10 +68,10 @@ public class Finca implements Serializable
 	private LocalDate fechaUltimoCierreLotes;
 	
 	@SuppressWarnings("resource")
-	public Finca(File fileRutaFinca,File fileRutaLotes,File fileRutaEmpleados,File fileRutaMaquinas,File fileRutaInsumos,File fileRutaProovedores
+	public Finca(File fileRutaProperties,File fileRutaLotes,File fileRutaEmpleados,File fileRutaMaquinas,File fileRutaInsumos,File fileRutaProovedores
 			,File fileRutaServicios,File fileRutaCompras,File fileRutaCultivos) throws Exception
 	{
-		archivoFinca=fileRutaFinca.getAbsolutePath();
+		
 		System.out.println("LotesCSV");
 		
 		//Properties infoLotes=validarProperties(fileRutaLotes, "Lotes");
@@ -122,58 +123,32 @@ public class Finca implements Serializable
       cargarComprasCSV(archivoCompras);
       
 		//File file=new File(archivoFinca);
-		if(fileRutaFinca.exists())
-		{
-			try
-			{
-				
-
-				ObjectInputStream ois=new ObjectInputStream(new FileInputStream(fileRutaFinca));
-				Finca finca=(Finca)ois.readObject();
-		      
-		      
-				fechaUltimoCierreEmpleados=finca.darFechaUltimoCierreEmpleados();
-				fechaUltimoCierreLotes=finca.darFechaUltimoCierreLotes();
-				
 		
-				
-				ois.close();
-				
-				
-			}
-			catch (Exception e) 
-			{
-				throw new Exception("Error con la deserializacion");
-			}
+      archivoFincaProperties=fileRutaProperties.getAbsolutePath();
+     System.out.println("preproper");
+      Properties prope=validarProperties(fileRutaProperties);
+      System.out.println(prope.getProperty("fechaUltimoCierreEmpleados(dd/MM/yyyy)"));
+      
 			
-		}
-		else
-		{
+			String[] cierreEmple=prope.getProperty("fechaUltimoCierreEmpleados(dd/MM/yyyy)").split("[/]");
+			String[] cierreLotes=prope.getProperty("fechaUltimoCierreLotes(dd/MM/yyyy)").split("[/]");
 			
-			fechaUltimoCierreEmpleados=null;
-			fechaUltimoCierreLotes=null;
+			System.out.println(cierreEmple[0]);
+			System.out.println(cierreEmple[1]);
+			LocalDate dateEmple=LocalDate.of(Integer.parseInt(cierreEmple[2]), Integer.parseInt(cierreEmple[1]), Integer.parseInt(cierreEmple[0]));
+			LocalDate dateLot=LocalDate.of(Integer.parseInt(cierreLotes[2]), Integer.parseInt(cierreLotes[1]), Integer.parseInt(cierreLotes[0]));
+			
+			fechaUltimoCierreEmpleados=dateEmple;
+			fechaUltimoCierreLotes=dateLot;
 			
 			
-		}
+		
 	}
 	
 	
 
-	public Finca(String nRuta,ArrayList<Lote> nLotes,ArrayList<Maquina> nMaquinas,ArrayList<Empleado> nEmpleados,
-			ArrayList<Servicio> nServicios,ArrayList<Insumo> nInsumos,ArrayList<String> nProovedores,ArrayList<Compra> nCompras,LocalDate nFechaUltimoCierreEmpleados,LocalDate nFechaUltimoCierreLotes)
-	{
-		lotes=nLotes;
-		maquinas=nMaquinas;
-		empleados=nEmpleados;
-		servicios=nServicios;
-		insumos=nInsumos;
-		archivoFinca=nRuta;
-		fechaUltimoCierreEmpleados=nFechaUltimoCierreEmpleados;
-		fechaUltimoCierreLotes=nFechaUltimoCierreLotes;
-		proovedores=nProovedores;
-		compras=nCompras;
-	}
-	public Properties validarProperties(File valid,String queTipo) throws Exception
+	
+	public Properties validarProperties(File valid) throws Exception
 	{
 		Properties info=new Properties();
 		
@@ -189,7 +164,7 @@ public class Finca implements Serializable
         }
         catch( Exception e )
         {
-            throw new Exception( "Formato invalido " +queTipo);
+            throw new Exception( "Formato invalido ");
         }
         return info;
         
@@ -244,7 +219,7 @@ public class Finca implements Serializable
 				
 				LocalDate fecha= LocalDate.of(Integer.parseInt(date[2]), Integer.parseInt(date[1]),Integer.parseInt(date[0]));
 				nuevoEmpleado( linea[1], linea[2],fecha, linea[4], linea[5], linea[6],linea[7], Double.parseDouble(linea[8]));
-				
+				System.out.println(linea[1]);
 				
 			}
 			
@@ -452,16 +427,44 @@ public class Finca implements Serializable
 {
 	try
 	{
+		String rutaLotesFinal="./data/lotesFinal.csv";
+		salvarLotesCSV(rutaLotesFinal);
+		
 		String rutaEmpleadosFinal="./data/empleadosFinal.csv";
 		salvarEmpleadosCSV(rutaEmpleadosFinal);
 		
-		ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream(archivoFinca));
-	
-
-		oos.writeObject(new Finca(archivoFinca, lotes, maquinas, empleados, servicios,insumos,proovedores,compras,fechaUltimoCierreEmpleados,fechaUltimoCierreLotes));
-	
-
-		oos.close();
+		String rutaMaquinasFinal="./data/maquinasFinal.csv";
+		salvarMaquinasCSV(rutaMaquinasFinal);
+		
+		String rutaInsumosFinal="./data/insumosFinal.csv";
+		salvarInsumosCSV(rutaInsumosFinal);
+		
+		String rutaProovedoresFinal="./data/proovedoresFinal.csv";
+		salvarProovedoresCSV(rutaProovedoresFinal);
+		
+		String rutaServiciosFinal="./data/serviciosFinal.csv";
+		salvarServiciosCSV(rutaServiciosFinal);
+		
+		String rutaComprasFinal="./data/comprasFinal.csv";
+		salvarComprasCSV(rutaComprasFinal);
+		
+		String rutaCultivoFinal="./data/cultivoFinal.csv";
+		salvarCultivoCSV(rutaCultivoFinal);
+		
+		
+		//PROPERTIES!!!!!!! 
+		File f = new File("./data/FlorenciaProperties.properties");
+        OutputStream out = new FileOutputStream( f );
+        
+		Properties props = new Properties();
+		String fechaCierreEmpleados=fechaUltimoCierreEmpleados.getDayOfMonth()+"/"+fechaUltimoCierreEmpleados.getMonthValue()+"/"+fechaUltimoCierreEmpleados.getYear();
+		String fechaCierreLotes=fechaUltimoCierreLotes.getDayOfMonth()+"/"+fechaUltimoCierreLotes.getMonthValue()+"/"+fechaUltimoCierreLotes.getYear();
+        props.setProperty("fechaUltimoCierreEmpleados(dd/MM/yyyy)",fechaCierreEmpleados );
+        props.setProperty("fechaUltimoCierreLotes(dd/MM/yyyy)", fechaCierreLotes);
+        
+        props.store(out, null);
+		
+		
 	}
 	catch (Exception e) 
 	{
@@ -469,20 +472,57 @@ public class Finca implements Serializable
 		// TODO: handle exception
 	}
 }
+	public void salvarLotesCSV(String rutaLotesFinal) 
+	{
+		try
+		{
+			Writer writer = Files.newBufferedWriter(Paths.get(rutaLotesFinal));
+	
+			@SuppressWarnings("resource")
+			CSVWriter csvWriter = new CSVWriter(writer,
+	                '@',
+	                CSVWriter.NO_QUOTE_CHARACTER,
+	                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+	                CSVWriter.DEFAULT_LINE_END);
+			String[] header={"ID_0","NOMBRE_1","UBICACION_2","COSTO_3","AREA_4"};
+			csvWriter.writeNext(header);
+			
+			int index=0;
+			for (Lote iLote : lotes) 
+			{
+				
+				String[] iL={"LO"+index,iLote.darNombre(),iLote.darUbicacion(),Double.toString(iLote.darCosteTierra()),Double.toString(iLote.darArea())};
+				csvWriter.writeNext(iL);
+			
+				index++;
+			}
+			
+			csvWriter.close();
+		}
+		catch (Exception e) 
+		{
+			System.out.println("Error Salvando CSV Lotes");
+		}
+				
+	}
+
+
+
+
 	public void salvarEmpleadosCSV(String rutaEmpleadosCSV)
 	{
-
+	
 		
 		try
 		{
 			Writer writer = Files.newBufferedWriter(Paths.get(rutaEmpleadosCSV));
-
+	
 			@SuppressWarnings("resource")
 			CSVWriter csvWriter = new CSVWriter(writer,
-                    '@',
-                    CSVWriter.NO_QUOTE_CHARACTER,
-                    CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-                    CSVWriter.DEFAULT_LINE_END);
+	                '@',
+	                CSVWriter.NO_QUOTE_CHARACTER,
+	                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+	                CSVWriter.DEFAULT_LINE_END);
 			String[] header={"ID_0","NOMBRE_1","CEDULA_2","FECHAINGRESO_3","EPS_4","ZAPATOS_5",
 					"PANTALON_6","CAMISETA_7","SUELDO_8","HORAS_9"};
 			csvWriter.writeNext(header);
@@ -493,7 +533,7 @@ public class Finca implements Serializable
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 				String formattedString = fecha.format(formatter);
 				
-				System.out.println(formattedString);
+				
 				
 				String[] iE={"EM"+index,iEmpleado.darNombre(),iEmpleado.darCedula(),formattedString,
 						iEmpleado.darEps(),iEmpleado.darTallas()[0],iEmpleado.darTallas()[1],iEmpleado.darTallas()[2],
@@ -502,17 +542,68 @@ public class Finca implements Serializable
 			
 				index++;
 			}
-			System.out.println("After write");
+			
 			csvWriter.close();
 		}
 		catch (Exception e) {
 			System.out.println("Error Salvando CSV Empleados");
 		}
 			
-
-
+	
+	
 		
 	}
+
+
+
+
+	public void salvarMaquinasCSV(String rutaMaquinasFinal) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+	public void salvarInsumosCSV(String rutaInsumosFinal) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+	public void salvarProovedoresCSV(String rutaProovedoresFinal) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+	public void salvarServiciosCSV(String rutaServiciosFinal) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+	public void salvarComprasCSV(String rutaComprasFinal) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+	public void salvarCultivoCSV(String rutaCultivoFinal) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
 
 	public ArrayList<Servicio> darServicios() {
 		// TODO Auto-generated method stub
