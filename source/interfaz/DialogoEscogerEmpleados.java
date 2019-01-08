@@ -111,7 +111,12 @@ public class DialogoEscogerEmpleados extends JDialog implements ActionListener
 	}
  public String darEmpleadoJcombo(int i)
  {
+	 
 	 return jbEmpleados[i].getSelectedItem().toString();
+ }
+ public int darEmpleadoJcomboINDEX(int i)
+ {
+	 return jbEmpleados[i].getSelectedIndex();
  }
  public void actionPerformed(ActionEvent e) 
 	{
@@ -121,10 +126,10 @@ public class DialogoEscogerEmpleados extends JDialog implements ActionListener
 		String[] empleadosUsados=new String[numeroEmpleados];
 		for (int i = 0; i < empleadosUsados.length; i++) 
 		{
-			String iEmpleado = darEmpleadoJcombo(i);
+			int indexEmpleado = darEmpleadoJcomboINDEX(i);
 	
 			
-			empleadosUsados[i]=iEmpleado;
+			empleadosUsados[i]=indexEmpleado+"";
 			
 		}
 		interfaz.darEmpleadosUsados(empleadosUsados);

@@ -116,6 +116,10 @@ public class DialogoEscogerMaquinas extends JDialog implements ActionListener
  {
 	 return jbMaquinas[i].getSelectedItem().toString();
  }
+ public int darMaquinaJcomboINDEX(int i)
+ {
+	 return jbMaquinas[i].getSelectedIndex();
+ }
  public void actionPerformed(ActionEvent e) 
 	{
 		String a=e.getActionCommand();
@@ -124,10 +128,10 @@ public class DialogoEscogerMaquinas extends JDialog implements ActionListener
 		String[] maquinasUsadas=new String[numeroMaquinas];
 		for (int i = 0; i < maquinasUsadas.length; i++) 
 		{
-			String iMaquina = darMaquinaJcombo(i);
+			int indexMaquina = darMaquinaJcomboINDEX(i);
 			
 			
-			maquinasUsadas[i]=iMaquina;
+			maquinasUsadas[i]=indexMaquina+"";
 			
 		}
 		interfaz.darMaquinasUsadas(maquinasUsadas);

@@ -114,6 +114,10 @@ public class DialogoEscogerInsumos extends JDialog implements ActionListener
  {
 	 return jbInsumos[i].getSelectedItem().toString();
  }
+ public int darInsumoJcomboINDEX(int i)
+ {
+	 return jbInsumos[i].getSelectedIndex();
+ }
  public void actionPerformed(ActionEvent e) 
 	{
 		String a=e.getActionCommand();
@@ -122,9 +126,10 @@ public class DialogoEscogerInsumos extends JDialog implements ActionListener
 		String[] insumoDosis=new String[numeroInsumos];
 		for (int i = 0; i < insumoDosis.length; i++) 
 		{
-			String insumo = darInsumoJcombo(i);
+			int indexInsumo = darInsumoJcomboINDEX(i);
 			String dosis=txtDosis[i].getText();
-			String insuDosis=insumo+"@"+dosis;
+			String insuDosis="IN"+indexInsumo+"|"+dosis;
+			System.out.println(insuDosis);
 			insumoDosis[i]=insuDosis;
 			
 		}

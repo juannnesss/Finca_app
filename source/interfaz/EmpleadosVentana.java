@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -27,7 +28,7 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 	private final static String ELIMINAR_EMPLEADO = "eliminarEmpleado";
 	private final static String LIQUIDAR_EMPLEADOS = "liquidarEmpleados";
 	private final static String ATRAS = "atras";
-	private final static String[] columTags = { "Nombre", "Cedula", "Dias Trabajados" };
+	private final static String[] columTags = { "Nombre", "Cedula", "Dias Trabajados","Sueldo" };
 
 	private InterfazFinca interfazPrincipal;
 	private Finca finca;
@@ -87,13 +88,19 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 
 	}
 
-	private Object[][] cargarInfo() {
+	private Object[][] cargarInfo() 
+	{
+		NumberFormat nf=NumberFormat.getNumberInstance();
+		nf.setGroupingUsed(true);
+		nf.setMinimumFractionDigits(2);
+		nf.setMaximumFractionDigits(2);
+		
 		ArrayList<Empleado> empleados = finca.darEmpleados();
 		int numeroEmpleados = empleados.size();
 		Object[][] data = new Object[numeroEmpleados][columTags.length];
 		for (int i = 0; i < numeroEmpleados; i++) {
 			Empleado iEmpleado = empleados.get(i);
-			Object[] iOb = { iEmpleado.darNombre(), iEmpleado.darCedula(), iEmpleado.darDiasTrabajados() };
+			Object[] iOb = { iEmpleado.darNombre(), iEmpleado.darCedula(), iEmpleado.darDiasTrabajados(),nf.format(iEmpleado.darSalario()) };
 			data[i] = iOb;
 		}
 
