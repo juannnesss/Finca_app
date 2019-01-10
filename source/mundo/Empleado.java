@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class Empleado implements Serializable
 {
 	private static final long serialVersionUID=500L;
+	private String id;
 	private String nombre;
 	
 	private String cedula;
@@ -18,9 +19,10 @@ public class Empleado implements Serializable
 	private double diasTrabajados;
 	//private String photoFile;
 	
-	public Empleado(String nNombre, String nCedula,LocalDate nFecha,String nEps,String zapatos
+	public Empleado(int nID,String nNombre, String nCedula,LocalDate nFecha,String nEps,String zapatos
 			,String pantalon,String camiseta,double nSalario,double nDias)
 	{
+		id="EM"+nID;
 		nombre=nNombre;
 		cedula=nCedula;
 		fechaIngreso=nFecha;
@@ -33,7 +35,10 @@ public class Empleado implements Serializable
 		diasTrabajados=nDias;
 		serviciosPrestados=new ArrayList<Servicio>();
 	}
-	
+	public String darID()
+	{
+		return id;
+	}
 	public String darNombre()
 	{
 		return nombre;
@@ -87,6 +92,12 @@ public class Empleado implements Serializable
 			}
 					
 		}
+	}
+	public void agregarServicioCSV(Servicio servicio) 
+	{
+		serviciosPrestados.add(servicio);
+		
+		
 	}
 
 }

@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
 
+import javax.imageio.stream.IIOByteBuffer;
+
 import org.omg.CORBA.PUBLIC_MEMBER;
 
 import com.opencsv.CSVParser;
@@ -48,7 +50,7 @@ public class Finca implements Serializable
 	
 	private ArrayList<Insumo> insumos;
 	
-	private ArrayList<String> proovedores;
+	private ArrayList<Proovedor> proovedores;
 	
 	private ArrayList<Compra> compras;
 	
@@ -66,6 +68,7 @@ public class Finca implements Serializable
 	private LocalDate fechaUltimoCierreEmpleados;
 	
 	private LocalDate fechaUltimoCierreLotes;
+	private int ultimoIndexCultivo;
 	
 	@SuppressWarnings("resource")
 	public Finca(File fileRutaProperties,File fileRutaLotes,File fileRutaEmpleados,File fileRutaMaquinas,File fileRutaInsumos,File fileRutaProovedores
@@ -121,20 +124,36 @@ public class Finca implements Serializable
     //compras=finca.darCompras();
       archivoCompras=fileRutaCompras.getAbsolutePath();
       cargarComprasCSV(archivoCompras);
-      
+      /*
+      for(Lote iLote:lotes)
+      {
+    	 for( Cultivo iCul:iLote.darCultivos())
+    	 {
+    		 if(iCul.darIDS().length>0)
+    		 {
+    			 for(String iID:iCul.darIDS())
+    			 {
+    				 iCul.agregarServicio(buscarServicioID(Integer.parseInt(iID.substring(2))));
+    			 }
+    		 }
+    	 }
+
+      }
+      */
 		//File file=new File(archivoFinca);
 		
       archivoFincaProperties=fileRutaProperties.getAbsolutePath();
      System.out.println("preproper");
       Properties prope=validarProperties(fileRutaProperties);
-      System.out.println(prope.getProperty("fechaUltimoCierreEmpleados(dd/MM/yyyy)"));
+      
       
 			
 			String[] cierreEmple=prope.getProperty("fechaUltimoCierreEmpleados(dd/MM/yyyy)").split("[/]");
 			String[] cierreLotes=prope.getProperty("fechaUltimoCierreLotes(dd/MM/yyyy)").split("[/]");
+			String indexCultivo=prope.getProperty("indexCultivo");
+			ultimoIndexCultivo=Integer.parseInt(indexCultivo);
 			
-			System.out.println(cierreEmple[0]);
-			System.out.println(cierreEmple[1]);
+			
 			LocalDate dateEmple=LocalDate.of(Integer.parseInt(cierreEmple[2]), Integer.parseInt(cierreEmple[1]), Integer.parseInt(cierreEmple[0]));
 			LocalDate dateLot=LocalDate.of(Integer.parseInt(cierreLotes[2]), Integer.parseInt(cierreLotes[1]), Integer.parseInt(cierreLotes[0]));
 			
@@ -218,8 +237,8 @@ public class Finca implements Serializable
 				String[] date=linea[3].split("[/]");
 				
 				LocalDate fecha= LocalDate.of(Integer.parseInt(date[2]), Integer.parseInt(date[1]),Integer.parseInt(date[0]));
-				nuevoEmpleado( linea[1], linea[2],fecha, linea[4], linea[5], linea[6],linea[7], Double.parseDouble(linea[8]));
-				System.out.println(linea[1]);
+				nuevoEmpleado( linea[1], linea[2],fecha, linea[4], linea[5], linea[6],linea[7], Double.parseDouble(linea[8]),Double.parseDouble(linea[9]));
+				
 				
 			}
 			
@@ -296,7 +315,7 @@ public class Finca implements Serializable
 			String[] linea=csvReader.readNext();
 			while((linea=csvReader.readNext())!=null)
 			{
-				nuevoProovedor(linea[1]);
+				nuevoProovedor(linea[1],linea[2]);
 			}
 		}
 		catch (Exception e) 
@@ -320,6 +339,7 @@ public class Finca implements Serializable
 			
 			while((linea=csvReader.readNext())!=null)
 			{
+				System.out.println(linea[0]);
 				String[] date=linea[1].split("[/]");
 			
 
@@ -329,24 +349,40 @@ public class Finca implements Serializable
 				
 				String idLote=linea[3].substring(2);
 								
-				String idMaquina=linea[5].substring(2);
-				String[] idMaquinaList=new String[1];
-				idMaquinaList[0]=idMaquina;
+				String[] idsMaquina=linea[5].split("[#]");
+				String[] indexMaquinas=new String[idsMaquina.length];
+				int index=0;
+				for(String iID:idsMaquina)
+				{
+					
+					String id=iID.substring(2);
+					//System.out.println(id);
+					indexMaquinas[index]=id;
+					index++;
+				}
+				System.out.println(linea[6]);		
+				String[] idsEmpleados=linea[6].split("[#]");
+				String[] indexEmpleados=new String[idsEmpleados.length];
+				index=0;
+				for(String iID:idsEmpleados)
+				{
+					
+					String id=iID.substring(2);
+					
+					indexEmpleados[index]=id;
+					index++;
+				}
 				
-				String idEmpleado=linea[6].substring(2);
-				String[] idEmpleadoList=new String[1];
-				idEmpleadoList[0]=idEmpleado;
+				String[] idInsumosCantidad=linea[7].split("[#]");
+		
 				
-				String[] infoInsumos=linea[7].split(":");
-				String idyDosisInsumo=infoInsumos[0];
-				
-				String[] idInsumoList=new String[1];
-				idInsumoList[0]=idyDosisInsumo;
 				
 				double nCostoXArea=Double.parseDouble(linea[8]);
+				//System.out.println(nCostoXArea);
 				
 				
-				nuevoServicio(fecha, linea[2], buscarLoteID(Integer.parseInt(idLote)), idMaquinaList, idEmpleadoList, infoInsumos, nCostoXArea);			}
+				nuevoServicioCSV(fecha, linea[2], buscarLoteID(Integer.parseInt(idLote)), indexMaquinas,
+						indexEmpleados, idInsumosCantidad, nCostoXArea);			}
 				
 		}
 		catch (Exception e) 
@@ -371,11 +407,19 @@ public class Finca implements Serializable
 				String[] date=linea[1].split("[/]");
 				LocalDate fecha= LocalDate.of(Integer.parseInt(date[2]), Integer.parseInt(date[1]),Integer.parseInt(date[0]));
 			
-				Insumo[] insu=new Insumo[1];
-				Insumo insumoUsado=buscarInsumoID(Integer.parseInt(linea[2].substring(2)));
+				String[] insumosString=linea[2].split("[#]");
+				String[] insumosCantidades=linea[3].split("[#]");
+				
+				Insumo[] insu=new Insumo[insumosString.length];
+				for(int i=0;i<insu.length;i++)
+				{
+					Insumo insumoUsado=buscarInsumoID(Integer.parseInt(insumosString[i].substring(2)));
+					Double cantidad=Double.parseDouble(insumosCantidades[i]);
+					insu[i]=new Insumo(Integer.parseInt(insumoUsado.darID().substring(2)), insumoUsado.darNombre(),cantidad , insumoUsado.darValorUnidad(), insumoUsado.darTipoMedida(), insumoUsado.darUbicacion());
+				}
+				
 				
 				//nombre lote inicial o id lote inicial
-				insu[0]=new Insumo(insumoUsado.darNombre(),Double.parseDouble(linea[3]), insumoUsado.darValorUnidad(), insumoUsado.darTipoMedida(), lotes.get(0).darNombre());
 				
 				String prove=linea[4];
 				nuevaCompra(fecha, insu, prove);
@@ -397,20 +441,44 @@ public class Finca implements Serializable
 			//pasando por alto la primera fila
 			
 			String[] linea=csvReader.readNext();
+			
 			while((linea=csvReader.readNext())!=null)
 			{
+				
 				String[] dateSiembra=linea[2].split("[/]");
 				LocalDate fechaSiembra= LocalDate.of(Integer.parseInt(dateSiembra[2]), Integer.parseInt(dateSiembra[1]),Integer.parseInt(dateSiembra[0]));
 			
 				String[] dateCorta=linea[3].split("[/]");
-				LocalDate fechaCorta= LocalDate.of(Integer.parseInt(dateCorta[2]), Integer.parseInt(dateCorta[1]),Integer.parseInt(dateCorta[0]));
-			
-				int index=Integer.parseInt(linea[7].substring(2));
-				Cultivo cultivo=new Cultivo(linea[1],fechaSiembra, lotes.get(index));
+				LocalDate fechaCorta=null;
+				if(dateCorta.length>1)
+				{
+					fechaCorta= LocalDate.of(Integer.parseInt(dateCorta[2]), Integer.parseInt(dateCorta[1]),Integer.parseInt(dateCorta[0]));
+					
+				}
+				
+				String[] servicios=linea[4].split("[#]");
 				
 				
 				
-				lotes.get(index).actualizarCultivoActual(cultivo, fechaCorta);
+				
+				int indexLote=Integer.parseInt(linea[7].substring(2));
+				Cultivo cultivo=nuevoCultivoCSV(linea[0], linea[7], linea[1], fechaSiembra, fechaCorta, servicios);
+				
+				//lotes.get(indexLote).actualizarCultivoActual(cultivo, fechaCorta);
+				
+				boolean idCultivoAnterior=linea[5].length()>1?asignarAnteriorCultivo(cultivo, Integer.parseInt(linea[5].substring(2))):false;
+				
+				boolean idCultivoSiguiente=linea[6].length()>1?asignarSiguienteCultivo(cultivo, Integer.parseInt(linea[6].substring(2))):false;
+				
+				
+				
+				boolean produccion=(linea[8].length()>0)?lotes.get(indexLote).asignarProduccionLote(Double.parseDouble(linea[8])):false;
+				
+				
+				
+				
+				
+				
 			}
 		}
 			catch (Exception e) 
@@ -430,10 +498,12 @@ public class Finca implements Serializable
 		String rutaLotesFinal="./data/lotesFinal.csv";
 		salvarLotesCSV(rutaLotesFinal);
 		
+		
 		String rutaEmpleadosFinal="./data/empleadosFinal.csv";
 		salvarEmpleadosCSV(rutaEmpleadosFinal);
 		
 		String rutaMaquinasFinal="./data/maquinasFinal.csv";
+		System.out.print("Mquinas Salvar");
 		salvarMaquinasCSV(rutaMaquinasFinal);
 		
 		String rutaInsumosFinal="./data/insumosFinal.csv";
@@ -444,13 +514,14 @@ public class Finca implements Serializable
 		
 		String rutaServiciosFinal="./data/serviciosFinal.csv";
 		salvarServiciosCSV(rutaServiciosFinal);
+		System.out.print("Servicios Salvar");
 		
 		String rutaComprasFinal="./data/comprasFinal.csv";
 		salvarComprasCSV(rutaComprasFinal);
 		
-		String rutaCultivoFinal="./data/cultivoFinal.csv";
+		String rutaCultivoFinal="./data/cultivosFinal.csv";
 		salvarCultivoCSV(rutaCultivoFinal);
-		
+		System.out.print("Cultivo Salvar");
 		
 		//PROPERTIES!!!!!!! 
 		File f = new File("./data/FlorenciaProperties.properties");
@@ -461,6 +532,7 @@ public class Finca implements Serializable
 		String fechaCierreLotes=fechaUltimoCierreLotes.getDayOfMonth()+"/"+fechaUltimoCierreLotes.getMonthValue()+"/"+fechaUltimoCierreLotes.getYear();
         props.setProperty("fechaUltimoCierreEmpleados(dd/MM/yyyy)",fechaCierreEmpleados );
         props.setProperty("fechaUltimoCierreLotes(dd/MM/yyyy)", fechaCierreLotes);
+        props.setProperty("indexCultivo", Integer.toString(ultimoIndexCultivo));
         
         props.store(out, null);
 		
@@ -478,7 +550,6 @@ public class Finca implements Serializable
 		{
 			Writer writer = Files.newBufferedWriter(Paths.get(rutaLotesFinal));
 	
-			@SuppressWarnings("resource")
 			CSVWriter csvWriter = new CSVWriter(writer,
 	                '@',
 	                CSVWriter.NO_QUOTE_CHARACTER,
@@ -517,7 +588,6 @@ public class Finca implements Serializable
 		{
 			Writer writer = Files.newBufferedWriter(Paths.get(rutaEmpleadosCSV));
 	
-			@SuppressWarnings("resource")
 			CSVWriter csvWriter = new CSVWriter(writer,
 	                '@',
 	                CSVWriter.NO_QUOTE_CHARACTER,
@@ -526,7 +596,7 @@ public class Finca implements Serializable
 			String[] header={"ID_0","NOMBRE_1","CEDULA_2","FECHAINGRESO_3","EPS_4","ZAPATOS_5",
 					"PANTALON_6","CAMISETA_7","SUELDO_8","HORAS_9"};
 			csvWriter.writeNext(header);
-			int index=0;
+			
 			for (Empleado iEmpleado : empleados) 
 			{
 				LocalDate fecha=iEmpleado.darFechaIngreso();
@@ -535,12 +605,12 @@ public class Finca implements Serializable
 				
 				
 				
-				String[] iE={"EM"+index,iEmpleado.darNombre(),iEmpleado.darCedula(),formattedString,
+				String[] iE={iEmpleado.darID(),iEmpleado.darNombre(),iEmpleado.darCedula(),formattedString,
 						iEmpleado.darEps(),iEmpleado.darTallas()[0],iEmpleado.darTallas()[1],iEmpleado.darTallas()[2],
 								Double.toString(iEmpleado.darSalario()),Double.toString(iEmpleado.darDiasTrabajados())};
 				csvWriter.writeNext(iE);
 			
-				index++;
+				
 			}
 			
 			csvWriter.close();
@@ -549,16 +619,43 @@ public class Finca implements Serializable
 			System.out.println("Error Salvando CSV Empleados");
 		}
 			
+		}
+
+
+
+
+	public void salvarMaquinasCSV(String rutaMaquinasFinal) 
+	{
+		try
+		{
+			Writer writer = Files.newBufferedWriter(Paths.get(rutaMaquinasFinal));
 	
-	
-		
-	}
-
-
-
-
-	public void salvarMaquinasCSV(String rutaMaquinasFinal) {
-		// TODO Auto-generated method stub
+			
+			CSVWriter csvWriter = new CSVWriter(writer,
+	                '@',
+	                CSVWriter.NO_QUOTE_CHARACTER,
+	                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+	                CSVWriter.DEFAULT_LINE_END);
+			String[] header={"ID_0","NOMBRE_1","DIAS_2"};
+			System.out.println(header.length);
+			csvWriter.writeNext(header);
+			
+			for(Maquina iMaquina:maquinas)
+			{
+				
+			
+				String[] iM={iMaquina.darID(),iMaquina.darNombre(),Integer.toString(iMaquina.darHorasTrabajo())};
+				System.out.println(iM.length);
+				csvWriter.writeNext(iM);
+				
+			}
+			csvWriter.close();
+			
+			
+		}
+		catch (Exception e) {
+			System.out.println("Error Salvando CSV Maquinas");
+		}
 		
 	}
 
@@ -566,23 +663,109 @@ public class Finca implements Serializable
 
 
 	public void salvarInsumosCSV(String rutaInsumosFinal) {
-		// TODO Auto-generated method stub
+		try
+		{
+			Writer writer = Files.newBufferedWriter(Paths.get(rutaInsumosFinal));
+	
+			
+			CSVWriter csvWriter = new CSVWriter(writer,
+	                '@',
+	                CSVWriter.NO_QUOTE_CHARACTER,
+	                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+	                CSVWriter.DEFAULT_LINE_END);
+			String[] header={"ID_0","NOMBRE_1","CANTIDAD_2","VALOR_UNIDAD_3","TIPO_MEDIDA_4","UBICACION_INICIAL_5"};
+			csvWriter.writeNext(header);
+			
+			for(Insumo iInsumo:insumos)
+			{
+			
+				String[] iI={iInsumo.darID(),iInsumo.darNombre(),Double.toString(iInsumo.darCantidadTotal()),Double.toString(iInsumo.darValorUnidad()),iInsumo.darTipoMedida(),iInsumo.darUbicacion()};
+				csvWriter.writeNext(iI);
+
+			}
+			csvWriter.close();
+		}
+		catch (Exception e) {
+			System.out.println("Error Salvando CSV Insumos");
+		}
+		
 		
 	}
 
 
 
 
-	public void salvarProovedoresCSV(String rutaProovedoresFinal) {
-		// TODO Auto-generated method stub
+	public void salvarProovedoresCSV(String rutaProovedoresFinal) 
+	{
+		try
+		{
+			Writer writer = Files.newBufferedWriter(Paths.get(rutaProovedoresFinal));
+	
+			
+			CSVWriter csvWriter = new CSVWriter(writer,
+	                '@',
+	                CSVWriter.NO_QUOTE_CHARACTER,
+	                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+	                CSVWriter.DEFAULT_LINE_END);
+			String[] header={"ID_0","NOMBRE_1","NIT_2"};
+			csvWriter.writeNext(header);
+			
+			for(Proovedor iProovedor:proovedores)
+			{
+			
+				String[] iP={iProovedor.darID(),iProovedor.darNombre(),iProovedor.darNIT()};
+				csvWriter.writeNext(iP);
+				
+			}
+			csvWriter.close();
+		}
+		catch (Exception e) {
+			System.out.println("Error Salvando CSV Proovedores");
+		}
+		
 		
 	}
 
 
 
 
-	public void salvarServiciosCSV(String rutaServiciosFinal) {
-		// TODO Auto-generated method stub
+	public void salvarServiciosCSV(String rutaServiciosFinal)
+	{
+		try
+		{
+			Writer writer = Files.newBufferedWriter(Paths.get(rutaServiciosFinal));
+	
+			
+			CSVWriter csvWriter = new CSVWriter(writer,
+	                '@',
+	                CSVWriter.NO_QUOTE_CHARACTER,
+	                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+	                CSVWriter.DEFAULT_LINE_END);
+			String[] header={"ID_0","FECHA_1","TIPO_2","LOTE_3","CULTIVO_4","MAQUINAS_5","EMPLEADOS_6","INSUMOS|DOSIS_7","COSTO_8"};
+			csvWriter.writeNext(header);
+			
+			for(Servicio iServicio:servicios)
+			{
+				LocalDate fecha=iServicio.darFecha();
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+				String formattedString = fecha.format(formatter);
+			
+			
+				String maquinasLinea=iServicio.generarLineaMaquinasCSV();
+				String empleadosLinea=iServicio.generarLineaEmpleadosCSV();
+				String insumosDosisLinea=iServicio.generarLineaInsumosDosisCSV() ;
+				
+					
+				
+				String[] iS={iServicio.darID(),formattedString,iServicio.darTipo(),iServicio.darLote().darID(),iServicio.darCultivo().darID(),maquinasLinea,empleadosLinea,insumosDosisLinea,Double.toString(iServicio.darCostoXArea()) };
+				csvWriter.writeNext(iS);
+				
+			}
+			csvWriter.close();
+		}
+		catch (Exception e) {
+			System.out.println("Error Salvando CSV Servicios");
+		}
 		
 	}
 
@@ -590,15 +773,91 @@ public class Finca implements Serializable
 
 
 	public void salvarComprasCSV(String rutaComprasFinal) {
-		// TODO Auto-generated method stub
+		try
+		{
+			Writer writer = Files.newBufferedWriter(Paths.get(rutaComprasFinal));
+	
+			
+			CSVWriter csvWriter = new CSVWriter(writer,
+	                '@',
+	                CSVWriter.NO_QUOTE_CHARACTER,
+	                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+	                CSVWriter.DEFAULT_LINE_END);
+			String[] header={"ID_0","FECHA_1","INSUMOS_2","CANTIDAD_3","PROOVEDOR_4","TOTAL_5"};
+			csvWriter.writeNext(header);
+			
+			for(Compra iCompra:compras)
+			{
+				String insumosLinea=iCompra.generarInsumosLineaCSV();
+				String cantidadLinea=iCompra.generarCantidadLineaCSV();
+				LocalDate fecha=iCompra.darFecha();
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+				String formattedString = fecha.format(formatter);
+			
+				String[] iC={iCompra.darID(),formattedString,insumosLinea,cantidadLinea,iCompra.darProovedor(),Double.toString(iCompra.darTotalCompra())};
+				csvWriter.writeNext(iC);
+				System.out.println(iC[0]);
+			}
+			csvWriter.close();
+		}
+		catch (Exception e) {
+			System.out.println("Error Salvando CSV Compras");
+		}
+				
 		
 	}
 
 
 
 
-	public void salvarCultivoCSV(String rutaCultivoFinal) {
-		// TODO Auto-generated method stub
+	public void salvarCultivoCSV(String rutaCultivoFinal) 
+	{
+		try
+		{
+			Writer writer = Files.newBufferedWriter(Paths.get(rutaCultivoFinal));
+	
+		
+			CSVWriter csvWriter = new CSVWriter(writer,
+	                '@',
+	                CSVWriter.NO_QUOTE_CHARACTER,
+	                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+	                CSVWriter.DEFAULT_LINE_END);
+			String[] header={"ID_0","PRODUCTO_1","SIEMBRA_FECHA_2","CORTA_FECHA_3","SERVICIOS_4","CULTIVO_ANTERIOR_5","CULTIVO_SIGUIENTE_6","LOTE_7","PRODUCCION_8"};
+			csvWriter.writeNext(header);
+			for(Lote iLote:lotes)
+			{
+				ArrayList<Cultivo> cultivos=iLote.darCultivos();
+				for(Cultivo iCultivo:cultivos)
+				{
+					LocalDate fechaS=iCultivo.darFechaSiembra();
+					DateTimeFormatter formatterS = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+					String formattedStringS = fechaS.format(formatterS);
+				
+					LocalDate fechaC=iCultivo.darFechaCorta();
+					String formattedStringC="";
+					if(fechaC!=null)
+					{
+						DateTimeFormatter formatterC = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+						formattedStringC = fechaC.format(formatterC);
+						
+						
+					}
+					
+					String[] iC={iCultivo.darID(),iCultivo.darProducto(),
+							formattedStringS,formattedStringC,iCultivo.generarLineaServiciosCSV(),
+							((iCultivo.darAnterior()!=null)?iCultivo.darAnterior().darID():new String("")),
+							((iCultivo.darSiguiente()!=null)?iCultivo.darSiguiente().darID():new String("")),iCultivo.darLote().darID(),Double.toString(iCultivo.darProduccion())};
+					csvWriter.writeNext(iC);
+				}
+			}
+			csvWriter.close();
+			
+		}
+		catch (Exception e) 
+		{
+			System.out.println("Error Salvando CSV Cultivo");
+		}
+				
 		
 	}
 
@@ -628,7 +887,7 @@ public class Finca implements Serializable
 	{
 		return insumos;
 	}
-	public ArrayList<String> darProovedores()
+	public ArrayList<Proovedor> darProovedores()
 	{
 		return proovedores;
 	}
@@ -676,12 +935,12 @@ public class Finca implements Serializable
 		}
 	}
 	public void nuevoEmpleado(String nNombre, String nCedula,LocalDate nFecha,String nEps,String zapatos
-			,String pantalon,String camiseta,double nSalario)
+			,String pantalon,String camiseta,double nSalario,double horas)
 	{
 		if(existeEmpleado(nNombre)==false)
 		{
-			Empleado empleado=new Empleado(nNombre, nCedula, nFecha,nEps, zapatos
-					 ,pantalon,camiseta, nSalario,0);
+			Empleado empleado=new Empleado(empleados.size(),nNombre, nCedula, nFecha,nEps, zapatos
+					 ,pantalon,camiseta, nSalario,horas);
 			empleados.add(empleado);
 			
 		}
@@ -693,7 +952,7 @@ public class Finca implements Serializable
 	{
 		if(existeMaquina(nNombre)==false)
 		{
-			Maquina maquina=new Maquina(nNombre,nHoras);
+			Maquina maquina=new Maquina(maquinas.size(),nNombre,nHoras);
 			maquinas.add(maquina);
 		}
 		
@@ -702,22 +961,22 @@ public class Finca implements Serializable
 	{
 		if(existeLote(nNombre)==false)
 		{
-			Lote lote=new Lote(nNombre, nUbicacion, nCoste, nArea);
+			Lote lote=new Lote(lotes.size(),nNombre, nUbicacion, nCoste, nArea);
 			lotes.add(lote);
 		}
 		
 	}
-	
-	public void nuevoServicio(LocalDate nFecha, String nTipo, Lote lote, String[] nMaquinas, String[] nEmpleados,String[] nInsumos, double nCostoXArea)
+	public void nuevoServicioCSV(LocalDate nFecha, String nTipo, Lote lote, String[] nMaquinas, String[] nEmpleados,String[] nInsumos, double nCostoXArea)
 	{
 		double areaLote=lote.darArea();
 		//maquinas
 		ArrayList<Maquina> maquinasUsadas=new ArrayList<>();
 		for (int i = 0; i < nMaquinas.length; i++) 
 		{
+			
 			String idIMaquina=nMaquinas[i];
 			Maquina iMaquina=buscarMaquinaID(Integer.parseInt(idIMaquina));
-			//System.out.println(iMaquina.darNombre());
+			
 			maquinasUsadas.add(iMaquina);
 			
 		}
@@ -728,7 +987,7 @@ public class Finca implements Serializable
 		{
 			String idIEmpleado=nEmpleados[i];
 			Empleado iEmpleado=buscarEmpleadoID(Integer.parseInt(idIEmpleado));
-			//System.out.println(iEmpleado.darNombre());
+			
 			empleadosUsados.add(iEmpleado);
 			
 		}
@@ -747,16 +1006,79 @@ public class Finca implements Serializable
 			
 			double dosis=Double.parseDouble((iS[1]));
 			
-			//System.out.println(iInsumo.darNombre());
+		
+			
+			double cantidad=dosis*areaLote;
+			
+			//insumos.get(index).registrarCompra(-cantidad , lotes.get(0).darNombre());
+			insumosUsados.add(new Insumo(Integer.parseInt(iInsumo.darID().substring(2)),iInsumo.darNombre(), cantidad, iInsumo.darValorUnidad(), iInsumo.darTipoMedida(),lotes.get(0).darNombre()));
+			
+			
+		}
+		Servicio servicio=new Servicio(servicios.size(),nFecha, nTipo, lote,lote.darCultivoActual(), maquinasUsadas, empleadosUsados,insumosUsados, nCostoXArea);
+		lote.darCultivoActual().agregarServicio(servicio);
+		for(int m=0;m<maquinasUsadas.size();m++)
+		{
+			Maquina mMaq=maquinasUsadas.get(m);
+			mMaq.agregarTrabajoCSV(servicio);
+		}
+		for(int e=0;e<empleadosUsados.size();e++)
+		{
+			Empleado eEmp=empleadosUsados.get(e);
+			eEmp.agregarServicioCSV(servicio);
+		}
+		servicios.add(servicio);
+	}
+	public void nuevoServicio(LocalDate nFecha, String nTipo, Lote lote, String[] nMaquinas, String[] nEmpleados,String[] nInsumos, double nCostoXArea)
+	{
+		double areaLote=lote.darArea();
+		//maquinas
+		ArrayList<Maquina> maquinasUsadas=new ArrayList<>();
+		for (int i = 0; i < nMaquinas.length; i++) 
+		{
+			System.out.println(nMaquinas[i]);
+			String idIMaquina=nMaquinas[i];
+			Maquina iMaquina=buscarMaquinaID(Integer.parseInt(idIMaquina));
+			System.out.println(iMaquina.darNombre());
+			maquinasUsadas.add(iMaquina);
+			
+		}
+		 
+		//empleados
+		ArrayList<Empleado> empleadosUsados=new ArrayList<>();
+		for (int i = 0; i < nEmpleados.length; i++) 
+		{
+			String idIEmpleado=nEmpleados[i];
+			Empleado iEmpleado=buscarEmpleadoID(Integer.parseInt(idIEmpleado));
+			System.out.println(iEmpleado.darNombre());
+			empleadosUsados.add(iEmpleado);
+			
+		}
+		
+		ArrayList<Insumo> insumosUsados=new ArrayList<>();
+		
+		
+		for (int i = 0; i < nInsumos.length; i++) 
+		{
+			String[] iS=nInsumos[i].split("[|]");
+			
+			
+			String id=iS[0].substring(2);
+			int index=Integer.parseInt(id);
+			Insumo iInsumo=buscarInsumoID(index);
+			
+			double dosis=Double.parseDouble((iS[1]));
+			
+			System.out.println(iInsumo.darNombre());
 			
 			double cantidad=dosis*areaLote;
 			
 			insumos.get(index).registrarCompra(-cantidad , lotes.get(0).darNombre());
-			insumosUsados.add(new Insumo(iInsumo.darNombre(), cantidad, iInsumo.darValorUnidad(), iInsumo.darTipoMedida(),lotes.get(0).darNombre()));
+			insumosUsados.add(new Insumo(Integer.parseInt(iInsumo.darID().substring(2)),iInsumo.darNombre(), cantidad, iInsumo.darValorUnidad(), iInsumo.darTipoMedida(),lotes.get(0).darNombre()));
 			
 			
 		}
-		Servicio servicio=new Servicio(nFecha, nTipo, lote,lote.darCultivoActual(), maquinasUsadas, empleadosUsados,insumosUsados, nCostoXArea);
+		Servicio servicio=new Servicio(servicios.size(),nFecha, nTipo, lote,lote.darCultivoActual(), maquinasUsadas, empleadosUsados,insumosUsados, nCostoXArea);
 		lote.darCultivoActual().agregarServicio(servicio);
 		for(int m=0;m<maquinasUsadas.size();m++)
 		{
@@ -776,24 +1098,37 @@ public class Finca implements Serializable
 		
 		Lote lote=buscarLoteNombre(nNombre);
 		
-		Cultivo cultivo=new Cultivo(nProducto, nPeriodo,lote);
+		Cultivo cultivo=new Cultivo((ultimoIndexCultivo+1),nProducto, nPeriodo,lote,null);
 		lote.actualizarCultivoActual(cultivo,corta);
+		ultimoIndexCultivo++;
+	}
+	public Cultivo nuevoCultivoCSV(String IDCultivo,String IDLote, String nProducto, LocalDate nPeriodo, LocalDate corta,String[] serviciosID)
+	{
+		
+		Lote lote=buscarLoteID(Integer.parseInt(IDLote.substring(2)));
+		
+		Cultivo cultivo=new Cultivo(Integer.parseInt(IDCultivo.substring(2)),nProducto, nPeriodo,lote,serviciosID);
+		lote.actualizarCultivoActual(cultivo,corta);
+		return cultivo;
+		
 	}
 	public void nuevoInsumo(String nNombre,double nCantidad,double nValorUnidad,String nTipoMedida)
 	{
 		//se asume que la ubicacion es la florencia
 		if(existeInsumo(nNombre)==false)
 		{
-			insumos.add(new Insumo(nNombre, nCantidad,nValorUnidad,nTipoMedida,lotes.get(0).darNombre()));
+			Insumo insu=new Insumo(insumos.size(),nNombre, nCantidad,nValorUnidad,nTipoMedida,lotes.get(0).darNombre());
+			insumos.add(insu);
  
 		}
 	}
-	public boolean nuevoProovedor(String proovedor) 
+	public boolean nuevoProovedor(String nNombre ,String nNIT) 
 	{
 		boolean rta=false;
-		if(buscarProovedorIndex(proovedor)==-1)
+		if(buscarProovedorIndex(nNombre)==-1)
 		{
-			proovedores.add(proovedor);
+			Proovedor pro=new Proovedor(proovedores.size(),nNombre, nNIT);
+			proovedores.add(pro);
 			rta=true;
 		}
 		return rta;
@@ -808,7 +1143,7 @@ public class Finca implements Serializable
 			insumos.get(buscarInsumoIndex(iIns.darNombre())).registrarCompra(iIns.darCantidadTotal(), lotes.get(0).darNombre());
 			
 		}
-		Compra compra=new Compra(date, insu, prove);
+		Compra compra=new Compra(compras.size(),date, insu, prove);
 		
 		compras.add(compra);
 		
@@ -864,7 +1199,27 @@ public class Finca implements Serializable
 	{
 		return empleados.get(ind);
 	}
-	
+	public Servicio buscarServicioID(int ind)
+	{
+		System.out.println(servicios.size());
+		return servicios.get(ind);
+	}
+	public Cultivo buscarCultivoID(int ind)
+	{
+		Cultivo rta=null;
+		for(Lote iLote:lotes)
+		{
+			for(Cultivo iCul:iLote.darCultivos())
+			{
+				if(iCul.darID().equals("CU"+ind))
+				{
+					rta=iCul;
+					return iCul;
+				}
+			}
+		}
+		return rta;
+	}
 	public int buscarServicioOrdenAgregado(String tipo, Lote lote)
 	{
 		int rta=-1;
@@ -897,18 +1252,18 @@ public class Finca implements Serializable
 		}
 		return rta;
 	}
-	public String buscarProovedorID(int ind)
+	public Proovedor buscarProovedorID(int ind)
 	{
 		return proovedores.get(ind);
 	}
-	public int buscarProovedorIndex(String proveedor)
+	public int buscarProovedorIndex(String nNombre)
 	{
 		int rta=-1;
 		
 		for(int i=0;i<proovedores.size();i++)
 		{
-			String iPro=proovedores.get(i);
-			if(iPro.equals(proveedor))
+			String iPro=proovedores.get(i).darNombre();
+			if(iPro.equals(nNombre))
 			{
 				rta=i;
 			}
@@ -1090,6 +1445,22 @@ public class Finca implements Serializable
 	public void agregarGastoMaquina(String maquinaNombre,Servicio servi, double horometro)
 	{
 		buscarMaquinaNombre(maquinaNombre).agregarGasto(servi, horometro);
+	}
+	public boolean asignarServiciosCultivoCSV(String[] servicios,Cultivo cultivo)
+	{
+		cultivo.asignarIDS(servicios);
+		return true;
+		
+	}
+	public boolean asignarAnteriorCultivo(Cultivo cultivo,int indCultiAnterior)
+	{
+		cultivo.actualizarAnterior(buscarCultivoID(indCultiAnterior));
+		return true;
+	}
+	public boolean asignarSiguienteCultivo(Cultivo cultivo,int indCultiSiguiente)
+	{
+		cultivo.actualizarSiguiente(buscarCultivoID(indCultiSiguiente));
+		return true;
 	}
 	
 	//version larga, muchas simplificaciones se pueden hacer!!!!

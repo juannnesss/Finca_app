@@ -4,11 +4,13 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import interfaz.MaquinasVentana;
+
 public class Servicio implements Serializable
 {
 	private static final long serialVersionUID=400L;
+	private String id;
 	private LocalDate fecha;
-	
 	private String tipo;
 	private Cultivo cultivo;
 	private Lote lote;
@@ -22,8 +24,9 @@ public class Servicio implements Serializable
 	
 	private double costo;
 	
-	public Servicio(LocalDate nFecha,String nTipo,Lote nLote,Cultivo nCultivo,ArrayList<Maquina> nMaquinas,ArrayList<Empleado> nEmpleados,ArrayList<Insumo> nInsumos,double nCosto)
+	public Servicio(int nID,LocalDate nFecha,String nTipo,Lote nLote,Cultivo nCultivo,ArrayList<Maquina> nMaquinas,ArrayList<Empleado> nEmpleados,ArrayList<Insumo> nInsumos,double nCosto)
 	{
+		id="SE"+nID;
 		fecha=nFecha;
 		tipo=nTipo;
 		lote=nLote;
@@ -33,7 +36,10 @@ public class Servicio implements Serializable
 		insumos=nInsumos;
 		costo=nCosto;
 	}
-	
+	public String darID()
+	{
+		return id;
+	}
 	public LocalDate darFecha()
 	{
 		return fecha;
@@ -83,5 +89,85 @@ public class Servicio implements Serializable
 		}
 		return darCostoTotalArea()+costoInsumos;
 	}
+	public String generarLineaMaquinasCSV()
+	{
+		if(maquinas.size()==0)
+		{
+			return "";
+		}
+		else if(maquinas.size()==1)
+		{
+			return maquinas.get(0).darID();
+		}
+		else {
+			String linea="";
+			int index=0;
+			for(Maquina iMaquina:maquinas)
+			{
+				linea+=iMaquina.darID();
+				if(index<(maquinas.size()-1))
+				{
+					linea+="#";
+				}
+				index++;
+			}
+			System.out.println(linea);
+			return linea;
+		}
+	}
+	public String generarLineaEmpleadosCSV()
+	{
+		if(empleados.size()==0)
+		{
+			return "";
+		}
+		else if(empleados.size()==1)
+		{
+			return empleados.get(0).darID();
+		}
+		else {
+			String linea="";
+			int index=0;
+			for(Empleado iEmpleado:empleados)
+			{
+				linea+=iEmpleado.darID();
+				if(index<(empleados.size()-1))
+				{
+					linea+="#";
+				}
+				index++;
+			}
+			System.out.println(linea);
+			return linea;
+		}
+		
+	}
 
+	public String generarLineaInsumosDosisCSV()
+	{
+		double area=lote.darArea();
+		if(insumos.size()==0)
+		{
+			return "";
+		}
+		else if(insumos.size()==1)
+		{
+			return insumos.get(0).darID()+"|"+(area==0?0:insumos.get(0).darCantidadTotal()/area);
+		}
+		else {
+			String linea="";
+			int index=0;
+			for(Insumo iInsumo:insumos)
+			{
+				linea+=iInsumo.darID()+"|"+(area==0?0:iInsumo.darCantidadTotal()/area);
+				if(index<(insumos.size()-1))
+				{
+					linea+="#";
+				}
+				index++;
+			}
+			
+			return linea;
+		}
+	}
 }

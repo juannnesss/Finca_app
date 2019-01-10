@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class Insumo implements Serializable
 {
 	private static final long serialVersionUID=700L;
-	
+	private String id;
 	private String nombre;
 	
 	private double cantidadTotal;
@@ -16,8 +16,9 @@ public class Insumo implements Serializable
 	
 	private String tipoCantidadMedida;
 	
-	public Insumo(String nNombre,double nCantidad, double nValorUnidad, String nTipoMedida,String ubicacionInicial)
+	public Insumo(int nID,String nNombre,double nCantidad, double nValorUnidad, String nTipoMedida,String ubicacionInicial)
 	{
+		id="IN"+nID;
 		nombre=nNombre;
 		cantidadTotal=nCantidad;
 		valorUnidad=nValorUnidad;
@@ -30,6 +31,10 @@ public class Insumo implements Serializable
 		distribucion.add(ob);
 		
 	}
+	public String darID()
+	{
+		return id;
+	}
 	public String darNombre()
 	{
 		return nombre;
@@ -38,6 +43,10 @@ public class Insumo implements Serializable
 	{
 		return cantidadTotal;
 	
+	}
+	public String darUbicacion()
+	{
+		return "";
 	}
 	public String darTipoMedida()
 	{

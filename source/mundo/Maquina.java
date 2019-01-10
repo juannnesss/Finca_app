@@ -6,21 +6,26 @@ import java.util.ArrayList;
 public class Maquina implements Serializable
 {
 	private static final long serialVersionUID=300L;
+	private String id;
 	private String nombre;
 	private ArrayList<Servicio> gastos;
 	private ArrayList<Servicio> trabajos;
 	private int diasDeTrabajo;
 	private double horoMetro;
 	
-	public Maquina(String nNombre,int horas)
+	public Maquina(int nID,String nNombre,int horas)
 	{
+		id="MA"+nID;
 		nombre=nNombre;
 		gastos=new ArrayList<Servicio>();
 		trabajos=new ArrayList<Servicio>();
 		diasDeTrabajo=horas;
 		horoMetro=0;
 	}
-	
+	public String darID()
+	{
+		return id;
+	}
 	public String darNombre()
 	{
 		return nombre;
@@ -55,6 +60,11 @@ public class Maquina implements Serializable
 	{
 		trabajos.add(trabajo);
 		diasDeTrabajo+=1;
+	}
+	public void agregarTrabajoCSV(Servicio trabajo) 
+	{
+		
+		trabajos.add(trabajo);
 	}
 	public void eliminarGasto(Servicio servicio)
 	{
@@ -96,5 +106,6 @@ public class Maquina implements Serializable
 	{
 		horoMetro=horometro;
 	}
+	
 
 }

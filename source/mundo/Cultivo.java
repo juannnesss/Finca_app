@@ -7,28 +7,43 @@ import java.util.ArrayList;
 public class Cultivo implements Serializable
 {
 	private static final long serialVersionUID=600L;
-	
+	private String id;
 	private String producto;
 	private LocalDate siembraFecha;
 	private LocalDate cortaFecha;
+	private String[] serviciosIDS;
 	private ArrayList<Servicio> servicios;
 	private Cultivo anterior;
 	private Cultivo siguiente;
 	private Lote lote;
 	private double produccion;
 
-	public Cultivo(String nProducto,LocalDate nPeriodo,Lote nLote)
+	public Cultivo(int nID,String nProducto,LocalDate nPeriodo,Lote nLote,String[] serviciosID)
 	{
+		id="CU"+nID;
 		producto=nProducto;
 		siembraFecha=nPeriodo;
+		cortaFecha=null;
 		servicios=new ArrayList<Servicio>();
 		anterior=null;
 		siguiente=null;
 		lote=nLote;
 		produccion=0;
+		serviciosIDS=serviciosID==null?new String[0]:serviciosID;
 		
 	}
-	
+	public void asignarIDS(String[] ids)
+	{
+		serviciosIDS=ids;
+	}
+	public String[] darIDS()
+	{
+		return serviciosIDS;
+	}
+	public String darID()
+	{
+		return id;
+	}
 	public String darProducto()
 	{
 		return producto;
@@ -59,6 +74,7 @@ public class Cultivo implements Serializable
 	}
 	public void asignarFechaCorta(LocalDate corta)
 	{
+		
 		cortaFecha=corta;
 	}
 	public void actualizarAnterior(Cultivo nCultivo)
@@ -117,5 +133,39 @@ public class Cultivo implements Serializable
 	public double calcularRendimiento()
 	{
 		return produccion-(calcularCostoTotal()+lote.darCosteTierra());
+	}
+	public String generarLineaServiciosCSV()
+	{
+		if(servicios.size()==0)
+		{
+			return "";
+		}
+		else if(servicios.size()==1)
+		{
+			return servicios.get(0).darID();
+		}
+		else {
+			String linea="";
+			int index=0;
+			for(Servicio iServicio:servicios)
+			{
+				linea+=iServicio.darID();
+				if(index<(servicios.size()-1))
+				{
+					linea+="#";
+				}
+				index++;
+			}
+			
+			return linea;
+		}
+	}
+	public void IDStoServicios()
+	{
+		
+	}
+	public void agregarServicioCSV(Servicio servicio) {
+		// TODO Auto-generated method stub
+		
 	}
 }

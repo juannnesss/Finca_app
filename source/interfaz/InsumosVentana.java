@@ -143,7 +143,9 @@ public class InsumosVentana extends JFrame implements ActionListener
 			}
 			else
 			{
-				finca.nuevoProovedor(proovedor);
+				String nit=JOptionPane.showInputDialog(this,"Introduzca el NIT del Nuevo Proovedor",
+						"Nuevo Proovedor",JOptionPane.INFORMATION_MESSAGE);
+				finca.nuevoProovedor(proovedor,nit);
 			}
 		}
 		if(a.equals(REGISTRAR))

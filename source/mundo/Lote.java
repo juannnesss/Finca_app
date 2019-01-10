@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Lote implements Serializable
 {
 	private static final long serialVersionUID=200L;
-	
+	private String id;
 	private String nombre;
 	
 	private String ubicacion;
@@ -21,8 +21,9 @@ public class Lote implements Serializable
 	
 	private ArrayList<Cultivo> cultivos;
 	
-	public Lote(String nNombre,String nUbicacion,double nCoste,double nArea)
+	public Lote(int nID,String nNombre,String nUbicacion,double nCoste,double nArea)
 	{
+		id="LO"+nID;
 		nombre=nNombre;
 		ubicacion=nUbicacion;
 		costeTierra=nCoste;
@@ -30,7 +31,10 @@ public class Lote implements Serializable
 		actual=null;
 		cultivos=new ArrayList<Cultivo>();
 	}
-	
+	public String darID()
+	{
+		return id;
+	}
 	public String darNombre()
 	{
 		return nombre;
@@ -62,9 +66,12 @@ public class Lote implements Serializable
 	{
 		if(actual==null)
 		{
+			//System.out.println("Lote Class actual igual null");
+			cultivo.asignarFechaCorta(corta);
 			
 			actual=cultivo;
 			cultivos.add(cultivo);
+			
 		}
 		else
 		{

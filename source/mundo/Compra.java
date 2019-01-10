@@ -7,7 +7,8 @@ public class Compra
 {
 private static final long serialVersionUID=800L;
 	
-	private LocalDate fecha;
+private String id;	
+private LocalDate fecha;
 	
 	private Insumo[] insumos;
 	
@@ -17,8 +18,9 @@ private static final long serialVersionUID=800L;
 	
 	
 	
-	public Compra(LocalDate nFecha,Insumo[] nInsumos,String nProovedor)
+	public Compra(int ID,LocalDate nFecha,Insumo[] nInsumos,String nProovedor)
 	{
+		id="CO"+ID;
 		fecha=nFecha;
 		insumos=nInsumos;
 		proovedor=nProovedor;
@@ -29,6 +31,10 @@ private static final long serialVersionUID=800L;
 			
 		}
 		
+	}
+	public String darID()
+	{
+		return id;
 	}
 	public LocalDate darFecha()
 	{
@@ -51,5 +57,59 @@ private static final long serialVersionUID=800L;
 		}
 		return totalCompra;
 	}
+	public String generarInsumosLineaCSV()
+	{
+		if(insumos.length==0)
+		{
+			return "";
+		}
+		else if(insumos.length==1)
+		{
+			return insumos[0].darID();
+		}
+		else {
+			
+				String linea="";
+				int index=0;
+				for(Insumo iInsumo:insumos)
+				{
+					linea+=iInsumo.darID();
+					if(index<(insumos.length-1))
+					{
+						linea+="#";
+					}
+					index++;
+				
+				}
+				return linea;
+		}
+	}
 
+	public String generarCantidadLineaCSV()
+	{
+		if(insumos.length==0)
+		{
+			return "";
+		}
+		else if(insumos.length==1)
+		{
+			return Double.toString(insumos[0].darCantidadTotal());
+		}
+		else {
+			
+				String linea="";
+				int index=0;
+				for(Insumo iInsumo:insumos)
+				{
+					linea+=Double.toString(iInsumo.darCantidadTotal());
+					if(index<(insumos.length-1))
+					{
+						linea+="#";
+					}
+					index++;
+				
+				}
+				return linea;
+		}
+	}
 }

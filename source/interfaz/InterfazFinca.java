@@ -182,6 +182,7 @@ public class InterfazFinca extends JFrame implements ActionListener
 
 	public static void main(String[] args) 
 	{
+		/*
 		File fileProperties=new File("./data/FlorenciaProperties.properties");
 		File fileLotes=new File("./data/lotes.csv");
 		File fileMaquinas=new File("./data/maquinas.csv");
@@ -191,7 +192,18 @@ public class InterfazFinca extends JFrame implements ActionListener
 		File fileServicios=new File("./data/servicios.csv");
 		File fileCompras=new File("./data/compras.csv");
 		File fileCultivos=new File("./data/cultivos.csv");
+	*/
 		
+		File fileProperties=new File("./data/FlorenciaProperties.properties");
+		File fileLotes=new File("./data/lotesFinal.csv");
+		File fileMaquinas=new File("./data/maquinasFinal.csv");
+		File fileEmpleados=new File("./data/empleadosFinal.csv");
+		File fileInsumos=new File("./data/insumosFinal.csv");
+		File fileProovedores=new File("./data/proovedoresFinal.csv");
+		File fileServicios=new File("./data/serviciosFinal.csv");
+		File fileCompras=new File("./data/comprasFinal.csv");
+		File fileCultivos=new File("./data/cultivosFinal.csv");
+			
 		Finca fin = null;
 		try{
 			fin = new Finca(fileProperties,fileLotes,fileEmpleados,fileMaquinas,fileInsumos,fileProovedores
