@@ -4,9 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -19,6 +21,7 @@ import mundo.Empleado;
 import mundo.Finca;
 import mundo.Insumo;
 import mundo.Maquina;
+import mundo.Proovedor;
 
 
 public class InsumosVentana extends JFrame implements ActionListener
@@ -150,6 +153,8 @@ public class InsumosVentana extends JFrame implements ActionListener
 		}
 		if(a.equals(REGISTRAR))
 		{
+			nuevaCompra();
+			/*
 			try
 			{
 				int index=tabla.getSelectedRow();
@@ -175,6 +180,7 @@ public class InsumosVentana extends JFrame implements ActionListener
 				JOptionPane.showMessageDialog(this, "Selecione Insumo", "ERROR",JOptionPane.ERROR_MESSAGE);
 				
 			}
+			*/
 			
 		}
 		if (a.equals(ATRAS)) {
@@ -214,6 +220,61 @@ public class InsumosVentana extends JFrame implements ActionListener
 			JOptionPane.showMessageDialog(this, "Selecione Insumo", "ERROR",JOptionPane.ERROR_MESSAGE);
 		
 		}
+	}
+	public void nuevaCompra()
+	{
+		String rta=JOptionPane.showInputDialog(this,"?Cuantos Insumos?",
+				"Registrar Compra",JOptionPane.INFORMATION_MESSAGE);
+		int nNumeroInsumos=Integer.parseInt(rta);
+		JDialog jDialog=new DialogoEscogerInsumos(this, nNumeroInsumos, finca.darInsumos());
+		jDialog.setVisible(true);
+	}
+
+	public void registrarInsumosCompra(String[] insumoCantidad) 
+	{
+
+		ArrayList<Proovedor> proo=finca.darProovedores();
+		String[] options=new String[proo.size()];
+		int index=0;
+		for(Proovedor iPro:proo)
+		{
+			options[index]=iPro.darNombre();
+			index++;
+			
+		}
+		int indexProovedor=JOptionPane.showOptionDialog(this, "Escoger Proovedor", "Nueva Compra", JOptionPane.DEFAULT_OPTION
+				, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+		String fecha=JOptionPane.showInputDialog(this,"Fecha de la Compra(dd.MM.yyyy)",
+				"Registrar Compra",JOptionPane.INFORMATION_MESSAGE);
+		LocalDate date;
+		try{
+			
+			date=LocalDate.of(Integer.parseInt(fecha.split("[.]")[2]), Integer.parseInt(fecha.split("[.]")[1]),Integer.parseInt( fecha.split("[.]")[0]));
+		
+		}
+		catch (Exception e) 
+		{
+			JOptionPane.showMessageDialog(this, "Digite la fecha con el formato Indicado", "ERROR",JOptionPane.ERROR_MESSAGE);
+			fecha=JOptionPane.showInputDialog(this,"Fecha de la Compra(dd.MM.yyyy)",
+					"Registrar Compra",JOptionPane.INFORMATION_MESSAGE);
+
+			date=LocalDate.of(Integer.parseInt(fecha.split("[.]")[2]), Integer.parseInt(fecha.split("[.]")[1]),Integer.parseInt( fecha.split("[.]")[0]));
+		
+			
+		}
+		Insumo[] insu=new Insumo[insumoCantidad.length];
+		int n=0;
+		for(String iLinea:insumoCantidad)
+		{
+			int ID=Integer.parseInt(iLinea.split("[|]")[0].substring(2));
+			double nCantidad=Double.parseDouble(iLinea.split("[|]")[1]);
+			Insumo insumoUsado=finca.buscarInsumoID(ID);
+			insu[n]=new Insumo(ID, insumoUsado.darNombre(), nCantidad, insumoUsado.darValorUnidad(), insumoUsado.darTipoMedida(), insumoUsado.darUbicacion());
+			n++;
+		}
+		finca.nuevaCompra(date, insu, proo.get(indexProovedor));
+		
+		
 	}
 
 

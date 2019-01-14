@@ -147,7 +147,9 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 	public void nuevoEmpleado(String nNombre, String nCedula,LocalDate nFecha,String nEps,String zapatos
 			,String pantalon,String camiseta,double nSalario) 
 	{
-		finca.nuevoEmpleado(nNombre, nCedula, nFecha, nEps, zapatos, pantalon, camiseta, nSalario);
+		//horas iniciales empleado creado por interfaz
+		double horas=0;
+		finca.nuevoEmpleado(nNombre, nCedula, nFecha, nEps, zapatos, pantalon, camiseta, nSalario,horas);
 		setVisible(false);
 		interfazPrincipal.actualizarEmpleados();
 		

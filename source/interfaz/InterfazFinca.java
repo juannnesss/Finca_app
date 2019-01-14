@@ -192,7 +192,7 @@ public class InterfazFinca extends JFrame implements ActionListener
 		File fileServicios=new File("./data/servicios.csv");
 		File fileCompras=new File("./data/compras.csv");
 		File fileCultivos=new File("./data/cultivos.csv");
-	*/
+		*/
 		
 		File fileProperties=new File("./data/FlorenciaProperties.properties");
 		File fileLotes=new File("./data/lotesFinal.csv");

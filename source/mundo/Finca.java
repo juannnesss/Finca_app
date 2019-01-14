@@ -143,7 +143,7 @@ public class Finca implements Serializable
 		//File file=new File(archivoFinca);
 		
       archivoFincaProperties=fileRutaProperties.getAbsolutePath();
-     System.out.println("preproper");
+     System.out.println("preProperties");
       Properties prope=validarProperties(fileRutaProperties);
       
       
@@ -160,7 +160,7 @@ public class Finca implements Serializable
 			fechaUltimoCierreEmpleados=dateEmple;
 			fechaUltimoCierreLotes=dateLot;
 			
-			
+		System.out.println("postProperties");	
 		
 	}
 	
@@ -349,31 +349,17 @@ public class Finca implements Serializable
 				
 				String idLote=linea[3].substring(2);
 								
-				String[] idsMaquina=linea[5].split("[#]");
-				String[] indexMaquinas=new String[idsMaquina.length];
-				int index=0;
-				for(String iID:idsMaquina)
-				{
-					
-					String id=iID.substring(2);
-					//System.out.println(id);
-					indexMaquinas[index]=id;
-					index++;
-				}
-				System.out.println(linea[6]);		
-				String[] idsEmpleados=linea[6].split("[#]");
-				String[] indexEmpleados=new String[idsEmpleados.length];
-				index=0;
-				for(String iID:idsEmpleados)
-				{
-					
-					String id=iID.substring(2);
-					
-					indexEmpleados[index]=id;
-					index++;
-				}
+				String[] idsMaquinas=linea[5].equals("")?new String[0]:linea[5].split("[#]");;
 				
-				String[] idInsumosCantidad=linea[7].split("[#]");
+						
+				String[] idsEmpleados=linea[6].equals("")?new String[0]:linea[6].split("[#]");
+				
+				
+				
+				
+				String[] idInsumosCantidad=linea[7].equals("")?new String[0]:linea[7].split("[#]");
+				
+				
 		
 				
 				
@@ -381,8 +367,8 @@ public class Finca implements Serializable
 				//System.out.println(nCostoXArea);
 				
 				
-				nuevoServicioCSV(fecha, linea[2], buscarLoteID(Integer.parseInt(idLote)), indexMaquinas,
-						indexEmpleados, idInsumosCantidad, nCostoXArea);			}
+				nuevoServicioCSV(fecha, linea[2], buscarLoteID(Integer.parseInt(idLote)), idsMaquinas,
+						idsEmpleados, idInsumosCantidad, nCostoXArea);			}
 				
 		}
 		catch (Exception e) 
@@ -422,7 +408,8 @@ public class Finca implements Serializable
 				//nombre lote inicial o id lote inicial
 				
 				String prove=linea[4];
-				nuevaCompra(fecha, insu, prove);
+				Proovedor proovedor=buscarProovedorID(Integer.parseInt(prove.substring(2)));
+				nuevaCompraCSV(fecha, insu, proovedor);
 			}
 		}
 		catch (Exception e) 
@@ -794,7 +781,7 @@ public class Finca implements Serializable
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 				String formattedString = fecha.format(formatter);
 			
-				String[] iC={iCompra.darID(),formattedString,insumosLinea,cantidadLinea,iCompra.darProovedor(),Double.toString(iCompra.darTotalCompra())};
+				String[] iC={iCompra.darID(),formattedString,insumosLinea,cantidadLinea,iCompra.darProovedor().darID(),Double.toString(iCompra.darTotalCompra())};
 				csvWriter.writeNext(iC);
 				System.out.println(iC[0]);
 			}
@@ -969,12 +956,14 @@ public class Finca implements Serializable
 	public void nuevoServicioCSV(LocalDate nFecha, String nTipo, Lote lote, String[] nMaquinas, String[] nEmpleados,String[] nInsumos, double nCostoXArea)
 	{
 		double areaLote=lote.darArea();
+		
 		//maquinas
 		ArrayList<Maquina> maquinasUsadas=new ArrayList<>();
+		System.out.println(nMaquinas.length);
 		for (int i = 0; i < nMaquinas.length; i++) 
 		{
-			
-			String idIMaquina=nMaquinas[i];
+			//System.out.println(nMaquinas[i]);
+			String idIMaquina=nMaquinas[i].substring(2);
 			Maquina iMaquina=buscarMaquinaID(Integer.parseInt(idIMaquina));
 			
 			maquinasUsadas.add(iMaquina);
@@ -982,10 +971,11 @@ public class Finca implements Serializable
 		}
 		 
 		//empleados
+		System.out.println(nEmpleados.length);
 		ArrayList<Empleado> empleadosUsados=new ArrayList<>();
 		for (int i = 0; i < nEmpleados.length; i++) 
 		{
-			String idIEmpleado=nEmpleados[i];
+			String idIEmpleado=nEmpleados[i].substring(2);
 			Empleado iEmpleado=buscarEmpleadoID(Integer.parseInt(idIEmpleado));
 			
 			empleadosUsados.add(iEmpleado);
@@ -994,9 +984,10 @@ public class Finca implements Serializable
 		
 		ArrayList<Insumo> insumosUsados=new ArrayList<>();
 		
-		
+		System.out.println(nInsumos.length);
 		for (int i = 0; i < nInsumos.length; i++) 
 		{
+			System.out.println(nInsumos[i]);
 			String[] iS=nInsumos[i].split("[|]");
 			
 			
@@ -1133,7 +1124,7 @@ public class Finca implements Serializable
 		}
 		return rta;
 	}
-	public void nuevaCompra(LocalDate date,Insumo[] insu,String prove)
+	public void nuevaCompra(LocalDate date,Insumo[] insu,Proovedor prove)
 	{
 		//se agregan las cantidades que indica la compra
 		for (int i = 0; i < insu.length; i++) 
@@ -1143,6 +1134,15 @@ public class Finca implements Serializable
 			insumos.get(buscarInsumoIndex(iIns.darNombre())).registrarCompra(iIns.darCantidadTotal(), lotes.get(0).darNombre());
 			
 		}
+		Compra compra=new Compra(compras.size(),date, insu, prove);
+		
+		compras.add(compra);
+		
+	}
+	public void nuevaCompraCSV(LocalDate date,Insumo[] insu,Proovedor prove)
+	{
+		//se agregan las cantidades que indica la compra
+		
 		Compra compra=new Compra(compras.size(),date, insu, prove);
 		
 		compras.add(compra);
@@ -1482,7 +1482,7 @@ public class Finca implements Serializable
 				Compra iCompra=compras.get(i);
 				LocalDate iDate=iCompra.darFecha();
 				Insumo[] iInsumos=iCompra.darInsumos();
-				String iProovedor=iCompra.darProovedor();
+				String iProovedor=iCompra.darProovedor().darNombre();
 				double iCostoCompra=iCompra.darTotalCompra();
 				if(proovedorReporte.size()==0)
 				{
@@ -1538,7 +1538,7 @@ public class Finca implements Serializable
 				Compra iCompra=compras.get(i);
 				LocalDate iDate=iCompra.darFecha();
 				Insumo[] iInsumos=iCompra.darInsumos();
-				String iProovedor=iCompra.darProovedor();
+				String iProovedor=iCompra.darProovedor().darNombre();
 				double iCostoCompra=iCompra.darTotalCompra();
 				if(iDate.isBefore(darFechaUltimoCierreLotes()))
 				{

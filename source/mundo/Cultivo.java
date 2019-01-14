@@ -132,7 +132,7 @@ public class Cultivo implements Serializable
 	}
 	public double calcularRendimiento()
 	{
-		return produccion-(calcularCostoTotal()+lote.darCosteTierra());
+		return produccion-(calcularCostoTotal()+(lote.darCosteTierra()*lote.darArea()));
 	}
 	public String generarLineaServiciosCSV()
 	{

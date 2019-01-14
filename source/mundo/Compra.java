@@ -12,13 +12,13 @@ private LocalDate fecha;
 	
 	private Insumo[] insumos;
 	
-	private String proovedor;
+	private Proovedor proovedor;
 	
 	private double totalCompra;
 	
 	
 	
-	public Compra(int ID,LocalDate nFecha,Insumo[] nInsumos,String nProovedor)
+	public Compra(int ID,LocalDate nFecha,Insumo[] nInsumos,Proovedor nProovedor)
 	{
 		id="CO"+ID;
 		fecha=nFecha;
@@ -44,7 +44,7 @@ private LocalDate fecha;
 	{
 		return insumos;
 	}
-	public String darProovedor()
+	public Proovedor darProovedor()
 	{
 		return proovedor;
 	}

@@ -31,7 +31,7 @@ public class ServiciosVentana extends JFrame implements ActionListener
 	private final static String NUEVO = "nuevo";
 	private final static String ELIMINAR = "eliminar";
 	private final static String ATRAS = "atras";
-	private final static String[] columTags = { "Fecha", "Tipo", "Lote", "Cultivo","Numero Maquinas","Empleado(s)","Costo Total" };
+	private final static String[] columTags = { "Fecha", "Tipo", "Lote", "Cultivo","Numero Maquinas","Empleado(s)","Costo Total Area","Costo Total" };
 
 	private InterfazFinca interfazPrincipal;
 	private Finca finca;
@@ -90,12 +90,34 @@ public class ServiciosVentana extends JFrame implements ActionListener
 		
 		ArrayList<Servicio> servicios = finca.darServicios();
 		int numeroServicios = servicios.size();
+		System.out.println(numeroServicios);
 		Object[][] data = new Object[numeroServicios][columTags.length];
 		int n=0;
+		for(int i=0;i<numeroServicios;i++)
+		{
+			Servicio iServicio = servicios.get(i);
+			if(numeroServicios-1==n)
+			{
+				ArrayList<Insumo> insumos=iServicio.darInsumos();
+				for(Insumo iIn:insumos)
+				{
+					System.out.println(iIn.darNombre());
+					System.out.println(iServicio.darLote().darArea()==0?0:iIn.darCantidadTotal()/iServicio.darLote().darArea());
+					System.out.println(iIn.darCantidadTotal()*iIn.darValorUnidad());
+				}
+				System.out.println();
+			}
+			System.out.println(iServicio.darID()+" M"+iServicio.darMaquinas().size()+" E"+iServicio.darEmpleados().size());
+			Object[] iOb={iServicio.darFecha().toString(),iServicio.darTipo(),iServicio.darLote().darNombre(),iServicio.darCultivo().darProducto(),iServicio.darMaquinas().size(),iServicio.darEmpleados().size(),nf.format(iServicio.darCostoTotalArea()),nf.format(iServicio.calcularCostoTotalServicio())};
+			data[n]=iOb;
+			System.out.println(n);
+			n++;
+		}
+		/*
 		for (int i = numeroServicios-1; i >-1; i--) 
 		{
 			Servicio iServicio = servicios.get(i);
-			
+			System.out.println(iServicio.darMaquinas().size()>1);
 			Object[] iOb = { iServicio.darFecha().toString(), iServicio.darTipo(),
 					iServicio.darLote().darNombre(),iServicio.darCultivo().darProducto(),
 					(iServicio.darMaquinas().size()>1?iServicio.darMaquinas().size():iServicio.darMaquinas().get(0).darNombre()),
@@ -104,7 +126,7 @@ public class ServiciosVentana extends JFrame implements ActionListener
 			data[n] = iOb;
 			n+=1;
 		}
-
+*/
 		return data;
 
 	}
