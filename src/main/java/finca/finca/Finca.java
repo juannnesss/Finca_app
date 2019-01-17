@@ -147,7 +147,8 @@ public class Finca implements Serializable
       Properties prope=validarProperties(fileRutaProperties);
       
       
-			
+			System.out.println(prope.getProperty("fechaUltimoCierreEmpleados(dd/MM/yyyy)"));
+			System.out.println(prope.getProperty("fechaUltimoCierreLotes(dd/MM/yyyy)"));
 			String[] cierreEmple=prope.getProperty("fechaUltimoCierreEmpleados(dd/MM/yyyy)").split("[/]");
 			String[] cierreLotes=prope.getProperty("fechaUltimoCierreLotes(dd/MM/yyyy)").split("[/]");
 			String indexCultivo=prope.getProperty("indexCultivo");
@@ -156,6 +157,8 @@ public class Finca implements Serializable
 			
 			LocalDate dateEmple=LocalDate.of(Integer.parseInt(cierreEmple[2]), Integer.parseInt(cierreEmple[1]), Integer.parseInt(cierreEmple[0]));
 			LocalDate dateLot=LocalDate.of(Integer.parseInt(cierreLotes[2]), Integer.parseInt(cierreLotes[1]), Integer.parseInt(cierreLotes[0]));
+			System.out.println(dateEmple);
+			System.out.println(dateEmple);
 			
 			fechaUltimoCierreEmpleados=dateEmple;
 			fechaUltimoCierreLotes=dateLot;
@@ -1485,24 +1488,28 @@ public class Finca implements Serializable
 		}
 		return rta;
 	}
-	public ArrayList<String[]> liquidarEmpleados(LocalDate fechaCierre)
+	public ArrayList<String[]> liquidarEmpleados( LocalDate fechaCierre )
 	{
 		ArrayList<String[]> rta=new ArrayList<String[]>();
+		System.out.println(fechaUltimoCierreEmpleados==null);
 		if(fechaUltimoCierreEmpleados==null)
 		{
 			for (int i = 0; i < empleados.size(); i++) 
 			{
 				Empleado iEmple=empleados.get(i);
-				ArrayList<Servicio> iServ=iEmple.darServiciosPrestados();
+				System.out.println(iEmple.darID());
+				ArrayList<Servicio> iServs=iEmple.darServiciosPrestados();
 				String[] linea=new String[2];
 				linea[0]=iEmple.darNombre();
 				double totalTrabajado=0;
-				for(int s=0;s<iServ.size();i++)
+				for(int s=0;s<iServs.size();i++)
 				{
 					//codigo para sumar las horas
 					totalTrabajado+=1;
 				}
 				linea[1]="1.El total de horas es:"+totalTrabajado+";";
+				System.out.println(linea[0]);
+				System.out.println(linea[1]);
 				rta.add(linea);
 				
 			}
@@ -1515,12 +1522,18 @@ public class Finca implements Serializable
 				Empleado iEmple=empleados.get(i);
 				ArrayList<Servicio> iServ=iEmple.darServiciosPrestados();
 				String[] linea=new String[2];
+				
 				linea[0]=iEmple.darNombre();
 				double totalTrabajado=0;
 				boolean seLLegoAFecha=false;
-				for(int s=iServ.size()-1;s>-1&&!(seLLegoAFecha);i--)
+				System.out.println(linea[0]);
+				System.out.println(linea[1]);
+				for(int s=iServ.size()-1;s>-1&&!(seLLegoAFecha);s--)
 				{
 					Servicio ise=iServ.get(s);
+					System.out.println(ise.darFecha());
+					System.out.println(fechaUltimoCierreEmpleados);
+					System.out.println(ise.darFecha().isAfter(fechaUltimoCierreEmpleados));
 					if(ise.darFecha().isAfter(fechaUltimoCierreEmpleados))
 					{
 						totalTrabajado+=1;
@@ -1531,11 +1544,14 @@ public class Finca implements Serializable
 					}
 				}
 				linea[1]="2.El total de horas es:"+totalTrabajado+";";
+				System.out.println(linea[1]);
 				rta.add(linea);
 				
 			}
 		}
-		fechaUltimoCierreEmpleados=fechaCierre;
+		//fechaUltimoCierreEmpleados=fechaCierre;
+		
+		
 		//se retonra un arraylist donde cada index es una List[] donde List[0]=Nombre EMpleado
 		//List[1]= mensaje total horas
 		return rta;

@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -18,8 +19,10 @@ import javax.swing.event.ListSelectionEvent;
 
 import finca.finca.Empleado;
 import finca.finca.Finca;
+import finca.finca.IInfo;
 import finca.finca.Lote;
 import finca.finca.Maquina;
+import finca.finca.Servicio;
 
 public class MaquinasVentana extends JFrame implements ActionListener {
 	private final static String NUEVO = "nuevo";
@@ -171,19 +174,50 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 	public void panelInfo() 
 	{
 		int index=tabla.getSelectedRow();
-		try
+		if(index!=-1)
 		{
-			Maquina maquina=finca.darMaquinas().get(index);
-			JDialog jDialog=new DialogoInfo(this, maquina);
-			jDialog.setVisible(true);
-			
-			
+		ArrayList<Maquina> sers=finca.darMaquinas();
+		ArrayList<IInfo> infos=new ArrayList<IInfo>();
+		Iterator<Maquina> iteS=sers.iterator();
+		while(iteS.hasNext())
+		{
+			IInfo next=iteS.next();
+			System.out.println(next.darNombreInfo());
+			infos.add(next);
 		}
-		catch (Exception e) 
+		
+		
+			if(index==0)
+			{
+				IInfo info=infos.get(index);
+				int anterior=-1;
+				int siguiente=index+1;
+				JDialog jDialog=new DialogoInfo(this, info,anterior,siguiente,infos);
+				jDialog.setVisible(true);
+			}
+			else if (index==(sers.size()-1))
+			{
+				IInfo info=infos.get(index);
+				int anterior=index-1;
+				int siguiente=-1;
+				JDialog jDialog=new DialogoInfo(this, info,anterior,siguiente,infos);
+				jDialog.setVisible(true);
+			}
+			else {
+				IInfo info=infos.get(index);
+				int anterior=index-1;
+				int siguiente=index+1;
+				JDialog jDialog=new DialogoInfo(this, info,anterior,siguiente,infos);
+				jDialog.setVisible(true);
+			}
+		}
+		
+		else
 		{
 			JOptionPane.showMessageDialog(this, "Selecione Maquina", "ERROR",JOptionPane.ERROR_MESSAGE);
 		
 		}
+			
 		
 	}
 	public void setHorometro()

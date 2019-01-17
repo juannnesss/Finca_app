@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -20,9 +21,11 @@ import javax.swing.event.ListSelectionEvent;
 
 import finca.finca.Empleado;
 import finca.finca.Finca;
+import finca.finca.IInfo;
 import finca.finca.Insumo;
 import finca.finca.Maquina;
 import finca.finca.Proovedor;
+import finca.finca.Servicio;
 
 
 public class InsumosVentana extends JFrame implements ActionListener
@@ -241,15 +244,45 @@ public class InsumosVentana extends JFrame implements ActionListener
 	public void panelInfo() 
 	{
 		int index=tabla.getSelectedRow();
-		try
+		if(index!=-1)
 		{
-			Insumo insumo=finca.darInsumos().get(index);
-			JDialog jDialog=new DialogoInfo(this, insumo);
-			jDialog.setVisible(true);
-			
-			
+		ArrayList<Insumo> sers=finca.darInsumos();
+		ArrayList<IInfo> infos=new ArrayList<IInfo>();
+		Iterator<Insumo> iteS=sers.iterator();
+		while(iteS.hasNext())
+		{
+			IInfo next=iteS.next();
+			System.out.println(next.darNombreInfo());
+			infos.add(next);
 		}
-		catch (Exception e) 
+		
+		
+			if(index==0)
+			{
+				IInfo info=infos.get(index);
+				int anterior=-1;
+				int siguiente=index+1;
+				JDialog jDialog=new DialogoInfo(this, info,anterior,siguiente,infos);
+				jDialog.setVisible(true);
+			}
+			else if (index==(sers.size()-1))
+			{
+				IInfo info=infos.get(index);
+				int anterior=index-1;
+				int siguiente=-1;
+				JDialog jDialog=new DialogoInfo(this, info,anterior,siguiente,infos);
+				jDialog.setVisible(true);
+			}
+			else {
+				IInfo info=infos.get(index);
+				int anterior=index-1;
+				int siguiente=index+1;
+				JDialog jDialog=new DialogoInfo(this, info,anterior,siguiente,infos);
+				jDialog.setVisible(true);
+			}
+		}
+		
+		else
 		{
 			JOptionPane.showMessageDialog(this, "Selecione Insumo", "ERROR",JOptionPane.ERROR_MESSAGE);
 		
