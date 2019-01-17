@@ -36,6 +36,7 @@ public class InsumosVentana extends JFrame implements ActionListener
 	private final static String PROOVEDOR="proovedor";
 	private final static String REGISTRAR="registrar";
 	private final static String ATRAS = "atras";
+	private final static String INFO = "info";
 	private final static String[] columTags = { "Nombre", "Cantidad", "Valor Unidad","Medicion"};
 
 	private InterfazFinca interfazPrincipal;
@@ -47,6 +48,7 @@ public class InsumosVentana extends JFrame implements ActionListener
 	private JButton nProovedor;
 	private JButton registrar;
 	private JButton atras;
+	private JButton bInfo;
 	
 	
 	private JScrollPane scroll;
@@ -59,7 +61,7 @@ public class InsumosVentana extends JFrame implements ActionListener
 		finca = interfazPrincipal.darFinca();
 		setLayout(new BorderLayout());
 		JPanel panelBotones = new JPanel();
-		panelBotones.setLayout(new GridLayout(5, 1));
+		panelBotones.setLayout(new GridLayout(6, 1));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		setTitle("Florencia-Insumos");
@@ -89,6 +91,11 @@ public class InsumosVentana extends JFrame implements ActionListener
 		atras.setActionCommand(ATRAS);
 		atras.addActionListener(this);
 		panelBotones.add(atras);
+		
+		bInfo=new JButton("Info");
+		bInfo.setActionCommand(INFO);
+		bInfo.addActionListener(this);
+		panelBotones.add(bInfo);
 		
 		tabla = new JTable(cargarInfo(), columTags);
 		scroll = new JScrollPane(tabla);
@@ -193,6 +200,10 @@ public class InsumosVentana extends JFrame implements ActionListener
 			this.setVisible(false);
 			interfazPrincipal.setVisible(true);
 		}
+		if(a.equals(INFO))
+		{
+			panelInfo();
+		}
 		// TODO Auto-generated method stub
 
 	}
@@ -226,6 +237,24 @@ public class InsumosVentana extends JFrame implements ActionListener
 			JOptionPane.showMessageDialog(this, "Selecione Insumo", "ERROR",JOptionPane.ERROR_MESSAGE);
 		
 		}
+	}
+	public void panelInfo() 
+	{
+		int index=tabla.getSelectedRow();
+		try
+		{
+			Insumo insumo=finca.darInsumos().get(index);
+			JDialog jDialog=new DialogoInfo(this, insumo);
+			jDialog.setVisible(true);
+			
+			
+		}
+		catch (Exception e) 
+		{
+			JOptionPane.showMessageDialog(this, "Selecione Insumo", "ERROR",JOptionPane.ERROR_MESSAGE);
+		
+		}
+		
 	}
 	public void nuevaCompra()
 	{

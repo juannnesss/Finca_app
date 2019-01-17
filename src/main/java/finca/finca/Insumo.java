@@ -1,9 +1,10 @@
 package finca.finca;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
-public class Insumo implements Serializable
+public class Insumo implements Serializable, IInfo
 {
 	private static final long serialVersionUID=700L;
 	private String id;
@@ -29,6 +30,51 @@ public class Insumo implements Serializable
 		ob[0]=ubicacionInicial;
 		ob[1]=cantidadTotal;
 		distribucion.add(ob);
+		
+	}
+	public String darNombreInfo()
+	{
+		String rta=darID()+darNombre();
+		return rta;
+	}
+	public String[] darEtiquetas()
+	{
+		
+		String [] rta={"ID"+":","Nombre"+":","Cantidad Total"+":"
+		,"Distribucion"+":","Valor Unidad"+":","Tipo Medida"+":"
+		};
+		
+		return rta;
+	}
+	public String[] darInfo()
+	{
+		String[] etiquetas=darEtiquetas();
+		String[] rta=new String[etiquetas.length];
+		if(etiquetas.length==6)
+		{ 
+			
+			rta[0]=etiquetas[0]+"#"+darID();
+			rta[1]=etiquetas[1]+"#"+darNombre();
+			rta[2]=etiquetas[2]+"#"+darCantidadTotal();
+			rta[3]=etiquetas[3]+"#"+darUbicacion();
+			rta[4]=etiquetas[4]+"#"+formatoDinero(darValorUnidad());
+			rta[5]=etiquetas[5]+"#"+darTipoMedida();
+			
+			return rta;
+		}
+		else 
+		{
+			System.out.println("Numero de Etiquetas No es igual Insumo");
+			return null;
+		}
+		
+	}
+	public String formatoDinero(double dinero) {
+		NumberFormat nf=NumberFormat.getNumberInstance();
+		nf.setGroupingUsed(true);
+		nf.setMinimumFractionDigits(2);
+		nf.setMaximumFractionDigits(2);
+		return nf.format(dinero);
 		
 	}
 	public String darID()

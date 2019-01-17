@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -28,6 +29,8 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 	private final static String ELIMINAR_EMPLEADO = "eliminarEmpleado";
 	private final static String LIQUIDAR_EMPLEADOS = "liquidarEmpleados";
 	private final static String ATRAS = "atras";
+	private final static String INFO = "info";
+	
 	private final static String[] columTags = { "Nombre", "Cedula", "Dias Trabajados","Sueldo" };
 
 	private InterfazFinca interfazPrincipal;
@@ -38,6 +41,7 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 	private JButton eEmpleado;
 	private JButton liquidar;
 	private JButton atras;
+	private JButton bInfo;
 
 	private JList txtEmpleados;
 	private JScrollPane scrollEmpleados;
@@ -50,7 +54,7 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 		finca = interfazPrincipal.darFinca();
 		setLayout(new BorderLayout());
 		JPanel panelBotones = new JPanel();
-		panelBotones.setLayout(new GridLayout(4, 1));
+		panelBotones.setLayout(new GridLayout(5, 1));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		setTitle("Florencia-Empleados");
@@ -75,6 +79,12 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 		atras.setActionCommand(ATRAS);
 		atras.addActionListener(this);
 		panelBotones.add(atras);
+		
+		bInfo=new JButton("Info");
+		bInfo.setActionCommand(INFO);
+		bInfo.addActionListener(this);
+		panelBotones.add(bInfo);
+		
 
 		
 
@@ -138,6 +148,10 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 			this.setVisible(false);
 			interfazPrincipal.setVisible(true);
 		}
+		if(a.equals(INFO))
+		{
+			panelInfo();
+		}
 		// TODO Auto-generated method stub
 
 	}
@@ -177,6 +191,25 @@ public class EmpleadosVentana extends JFrame implements ActionListener, ListSele
 		}
 		
 	}
+	public void panelInfo() 
+	{
+		int index=tabla.getSelectedRow();
+		try
+		{
+			Empleado empleado=finca.darEmpleados().get(index);
+			JDialog jDialog=new DialogoInfo(this, empleado);
+			jDialog.setVisible(true);
+			
+			
+		}
+		catch (Exception e) 
+		{
+			JOptionPane.showMessageDialog(this, "Selecione Empleado", "ERROR",JOptionPane.ERROR_MESSAGE);
+		
+		}
+		
+	}
+
 	public void liquidarEmpleados()
 	{
 		ArrayList<String[]> reporte=finca.liquidarEmpleados(LocalDate.now());

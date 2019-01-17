@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -17,6 +18,7 @@ import javax.swing.event.ListSelectionEvent;
 
 import finca.finca.Empleado;
 import finca.finca.Finca;
+import finca.finca.Lote;
 import finca.finca.Maquina;
 
 public class MaquinasVentana extends JFrame implements ActionListener {
@@ -24,6 +26,7 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 	private final static String ELIMINAR = "eliminar";
 	private final static String SET_HOROMETRO="setHorometro";
 	private final static String ATRAS = "atras";
+	private final static String INFO = "info";
 	private final static String[] columTags = { "Nombre", "Servicios", "Gastos", "Horas Trabajados" ,"Horometro"};
 
 	private InterfazFinca interfazPrincipal;
@@ -34,6 +37,7 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 	private JButton eMaquina;
 	private JButton sHorometro;
 	private JButton atras;
+	private JButton bInfo;
 
 	private JScrollPane scroll;
 
@@ -44,7 +48,7 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 		finca = interfazPrincipal.darFinca();
 		setLayout(new BorderLayout());
 		JPanel panelBotones = new JPanel();
-		panelBotones.setLayout(new GridLayout(4, 1));
+		panelBotones.setLayout(new GridLayout(5, 1));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		setTitle("Florencia-Maquina");
@@ -69,6 +73,11 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 		atras.setActionCommand(ATRAS);
 		atras.addActionListener(this);
 		panelBotones.add(atras);
+		
+		bInfo=new JButton("Info");
+		bInfo.setActionCommand(INFO);
+		bInfo.addActionListener(this);
+		panelBotones.add(bInfo);
 
 		tabla = new JTable(cargarInfo(), columTags);
 		scroll = new JScrollPane(tabla);
@@ -121,7 +130,10 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 			this.setVisible(false);
 			interfazPrincipal.setVisible(true);
 		}
-		// TODO Auto-generated method stub
+		if(a.equals(INFO))
+		{
+			panelInfo();
+		}
 
 	}
 
@@ -155,6 +167,24 @@ public class MaquinasVentana extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(this, "Selecione Maquina", "ERROR",JOptionPane.ERROR_MESSAGE);
 		
 		}
+	}
+	public void panelInfo() 
+	{
+		int index=tabla.getSelectedRow();
+		try
+		{
+			Maquina maquina=finca.darMaquinas().get(index);
+			JDialog jDialog=new DialogoInfo(this, maquina);
+			jDialog.setVisible(true);
+			
+			
+		}
+		catch (Exception e) 
+		{
+			JOptionPane.showMessageDialog(this, "Selecione Maquina", "ERROR",JOptionPane.ERROR_MESSAGE);
+		
+		}
+		
 	}
 	public void setHorometro()
 	{

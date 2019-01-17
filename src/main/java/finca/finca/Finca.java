@@ -397,12 +397,14 @@ public class Finca implements Serializable
 				String[] insumosString=linea[2].split("[#]");
 				String[] insumosCantidades=linea[3].split("[#]");
 				
-				Insumo[] insu=new Insumo[insumosString.length];
-				for(int i=0;i<insu.length;i++)
+				
+				ArrayList<Insumo> insumos=new ArrayList<Insumo>();
+				for(int i=0;i<insumosString.length;i++)
 				{
 					Insumo insumoUsado=buscarInsumoID(Integer.parseInt(insumosString[i].substring(2)));
 					Double cantidad=Double.parseDouble(insumosCantidades[i]);
-					insu[i]=new Insumo(Integer.parseInt(insumoUsado.darID().substring(2)), insumoUsado.darNombre(),cantidad , insumoUsado.darValorUnidad(), insumoUsado.darTipoMedida(), insumoUsado.darUbicacion());
+					Insumo insumo=new Insumo(Integer.parseInt(insumoUsado.darID().substring(2)), insumoUsado.darNombre(),cantidad , insumoUsado.darValorUnidad(), insumoUsado.darTipoMedida(), insumoUsado.darUbicacion());
+					insumos.add(insumo);
 				}
 				
 				
@@ -410,7 +412,7 @@ public class Finca implements Serializable
 				
 				String prove=linea[4];
 				Proovedor proovedor=buscarProovedorID(Integer.parseInt(prove.substring(2)));
-				nuevaCompraCSV(fecha, insu, proovedor);
+				nuevaCompraCSV(fecha, insumos, proovedor);
 			}
 		}
 		catch (Exception e) 
@@ -1220,20 +1222,22 @@ public class Finca implements Serializable
 	}
 	public void nuevaCompra(LocalDate date,Insumo[] insu,Proovedor prove)
 	{
+		ArrayList<Insumo> insumos=new ArrayList<Insumo>();
 		//se agregan las cantidades que indica la compra
 		for (int i = 0; i < insu.length; i++) 
 		{
 			Insumo iIns=insu[i];
+			insumos.add(iIns);
 			// se asume que la ubicacion es La Florencia28
 			insumos.get(buscarInsumoIndex(iIns.darNombre())).registrarCompra(iIns.darCantidadTotal(), lotes.get(0).darNombre());
 			
 		}
-		Compra compra=new Compra(compras.size(),date, insu, prove);
+		Compra compra=new Compra(compras.size(),date, insumos, prove);
 		
 		compras.add(compra);
 		
 	}
-	public void nuevaCompraCSV(LocalDate date,Insumo[] insu,Proovedor prove)
+	public void nuevaCompraCSV(LocalDate date,ArrayList<Insumo> insu,Proovedor prove)
 	{
 		//se agregan las cantidades que indica la compra
 		
@@ -1575,7 +1579,7 @@ public class Finca implements Serializable
 			{
 				Compra iCompra=compras.get(i);
 				LocalDate iDate=iCompra.darFecha();
-				Insumo[] iInsumos=iCompra.darInsumos();
+				ArrayList<Insumo> iInsumos=iCompra.darInsumos();
 				String iProovedor=iCompra.darProovedor().darNombre();
 				double iCostoCompra=iCompra.darTotalCompra();
 				if(proovedorReporte.size()==0)
@@ -1631,7 +1635,7 @@ public class Finca implements Serializable
 			{
 				Compra iCompra=compras.get(i);
 				LocalDate iDate=iCompra.darFecha();
-				Insumo[] iInsumos=iCompra.darInsumos();
+				ArrayList<Insumo> iInsumos=iCompra.darInsumos();
 				String iProovedor=iCompra.darProovedor().darNombre();
 				double iCostoCompra=iCompra.darTotalCompra();
 				if(iDate.isBefore(darFechaUltimoCierreLotes()))

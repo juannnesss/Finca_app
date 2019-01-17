@@ -1,18 +1,20 @@
 package finca.finca;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class Cultivo implements Serializable
+public class Cultivo implements Serializable, IInfo
 {
 	private static final long serialVersionUID=600L;
+	private String[] serviciosIDS;
 	private Finca finca;
 	private String id;
 	private String producto;
 	private LocalDate siembraFecha;
 	private LocalDate cortaFecha;
-	private String[] serviciosIDS;
 	private ArrayList<Servicio> servicios;
 	private Cultivo anterior;
 	private Cultivo siguiente;
@@ -44,6 +46,66 @@ public class Cultivo implements Serializable
 			produInsumo=finca.darInsumoPorIndex(finca.buscarInsumoIndex("PROD:"+lote.darNombre()));
 		}
 		
+		
+	}
+	public String darNombreInfo()
+	{
+		String rta=darID()+darLote().darNombreInfo()+"/"+darProducto();
+		return rta;
+	}
+	public String[] darEtiquetas()
+	{
+		
+		String [] rta={"ID"+":","Producto"+":","Fecha Siembra"+":"
+		,"Fecha Corta"+":","Servicios"+":","Cultivo Anterior"+":",
+		"Cultivo Siguiente"+":","Lote"
+				+ ":","Produccion Dinero"
+						+ ":","Produccion Peso"};
+		
+		
+		return rta;
+	}
+	public String[] darInfo()
+	{
+		String[] etiquetas=darEtiquetas();
+		String[] rta=new String[etiquetas.length];
+		if(etiquetas.length==10)
+		{ 
+			
+			rta[0]=etiquetas[0]+"#"+darID();
+			rta[1]=etiquetas[1]+"#"+darProducto();
+			rta[2]=etiquetas[2]+"#"+darFechaSiembra();
+			rta[3]=etiquetas[3]+"#"+darFechaCorta();
+			rta[4]=etiquetas[4]+"#";
+			Iterator<Servicio> iteS=servicios.iterator();
+			while(iteS.hasNext())
+			{
+				Servicio iS=iteS.next();
+				rta[4]+=iS.darNombreInfo()+",";			
+			}
+				
+			rta[5]=etiquetas[5]+"#"+(anterior==null?"":anterior.darNombreInfo());
+			rta[6]=etiquetas[6]+"#"+(siguiente==null?"":siguiente.darNombreInfo());
+			rta[7]=etiquetas[7]+"#"+lote.darNombreInfo();
+			rta[8]=etiquetas[8]+"#"+formatoDinero(darProduccion());
+			rta[9]=etiquetas[9]+"#"+darProduccionInsumo();
+			
+			
+			return rta;
+		}
+		else 
+		{
+			System.out.println("Numero de Etiquetas No es igual Cultivo");
+			return null;
+		}
+		
+	}
+	public String formatoDinero(double dinero) {
+		NumberFormat nf=NumberFormat.getNumberInstance();
+		nf.setGroupingUsed(true);
+		nf.setMinimumFractionDigits(2);
+		nf.setMaximumFractionDigits(2);
+		return nf.format(dinero);
 		
 	}
 	public void asignarIDS(String[] ids)

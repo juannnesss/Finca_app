@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -18,6 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 
+import finca.finca.Empleado;
 import finca.finca.Finca;
 import finca.finca.Lote;
 import finca.finca.Maquina;
@@ -30,6 +32,7 @@ public class LotesVentana extends JFrame implements ActionListener
 	private final static String ELIMINAR_CULTIVO="eliminarCultivo";
 	private final static String ASIGNAR_PROD="asignarProd";
 	private final static String ATRAS = "atras";
+	private final static String INFO = "info";
 	private final static String[] columTags = { "Nombre", "Ubicacion", "Coste Tierra x ha", "Area[ha]","Cultivo Actual","Rendimiento" };
 
 	private InterfazFinca interfazPrincipal;
@@ -42,6 +45,7 @@ public class LotesVentana extends JFrame implements ActionListener
 	private JButton eCultivo;
 	private JButton bAsig;
 	private JButton atras;
+	private JButton bInfo;
 
 	private JScrollPane scroll;
 
@@ -53,7 +57,7 @@ public class LotesVentana extends JFrame implements ActionListener
 		finca = interfazPrincipal.darFinca();
 		setLayout(new BorderLayout());
 		JPanel panelBotones = new JPanel();
-		panelBotones.setLayout(new GridLayout(6, 1));
+		panelBotones.setLayout(new GridLayout(7, 1));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		setTitle("Florencia-Lote");
@@ -88,6 +92,11 @@ public class LotesVentana extends JFrame implements ActionListener
 		atras.setActionCommand(ATRAS);
 		atras.addActionListener(this);
 		panelBotones.add(atras);
+		
+		bInfo=new JButton("Info");
+		bInfo.setActionCommand(INFO);
+		bInfo.addActionListener(this);
+		panelBotones.add(bInfo);
 
 		tabla = new JTable(cargarInfo(), columTags);
 		scroll = new JScrollPane(tabla);
@@ -157,6 +166,10 @@ public class LotesVentana extends JFrame implements ActionListener
 			this.setVisible(false);
 			interfazPrincipal.setVisible(true);
 		}
+		if(a.equals(INFO))
+		{
+			panelInfo();
+		}
 	}
 	public Finca darFinca()
 	{
@@ -215,6 +228,24 @@ public class LotesVentana extends JFrame implements ActionListener
 
 		}
 		
+		
+	}
+	public void panelInfo() 
+	{
+		int index=tabla.getSelectedRow();
+		try
+		{
+			Lote lote=finca.darLotes().get(index);
+			JDialog jDialog=new DialogoInfo(this, lote);
+			jDialog.setVisible(true);
+			
+			
+		}
+		catch (Exception e) 
+		{
+			JOptionPane.showMessageDialog(this, "Selecione Lote", "ERROR",JOptionPane.ERROR_MESSAGE);
+		
+		}
 		
 	}
 	private void eliminarCultivo() 

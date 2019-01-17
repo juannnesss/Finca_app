@@ -1,12 +1,14 @@
 package finca.finca;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import interfaz.MaquinasVentana;
 
-public class Servicio implements Serializable
+public class Servicio implements Serializable, IInfo 
 {
 	private static final long serialVersionUID=400L;
 	private String id;
@@ -37,6 +39,79 @@ public class Servicio implements Serializable
 		empleados=nEmpleados;
 		insumos=nInsumos;
 		costo=nCosto;
+	}
+	public String darNombreInfo()
+	{
+		String rta=darID()+darTipo();
+		return rta;
+	}
+	public String[] darEtiquetas()
+	{
+		
+		String [] rta={"ID"+":","Fecha"+":","Tipo"+":","Cultivo"+":","Lote"+":","Maquinas"+":"
+		,"Empleados"+":","Insumos"+":","Costo Unidad"+":","Carga?"+":"};
+		
+		return rta;
+	}
+	public String[] darInfo()
+	{
+		String[] etiquetas=darEtiquetas();
+		String[] rta=new String[etiquetas.length];
+		if(etiquetas.length==10)
+		{ 
+			
+			rta[0]=etiquetas[0]+"#"+darID();
+			rta[1]=etiquetas[1]+"#"+darFecha();
+			rta[2]=etiquetas[2]+"#"+darTipo();
+			rta[3]=etiquetas[3]+"#"+darCultivo().darNombreInfo();
+			rta[4]=etiquetas[4]+"#"+darLote().darNombreInfo();
+			
+			//maquinas
+			Iterator<Maquina> iteM=maquinas.iterator();
+			rta[5]=etiquetas[5]+"#";
+			while(iteM.hasNext())
+			{
+				Maquina iM=iteM.next();
+				rta[5]+=iM.darNombre()+",";
+			}
+			
+			//empleados
+			Iterator<Empleado> iteE=empleados.iterator();
+			rta[6]=etiquetas[6]+"#";
+			while(iteE.hasNext())
+			{
+				Empleado iE=iteE.next();
+				rta[6]+=iE.darNombreInfo()+",";
+			}
+			
+			//insumo
+			Iterator<Insumo> iteI=insumos.iterator();
+			rta[7]=etiquetas[7]+"#";
+			while(iteI.hasNext())
+			{
+				Insumo iI=iteI.next();
+				rta[7]+=iI.darNombreInfo()+",";
+			}
+			
+			rta[8]=etiquetas[8]+"#"+darCostoUnidad();
+			rta[9]=etiquetas[9]+"#"+esCarga();
+			
+			return rta;
+		}
+		else 
+		{
+			System.out.println("Numero de Etiquetas No es igual Servicios");
+			return null;
+		}
+		
+	}
+	public String formatoDinero(double dinero) {
+		NumberFormat nf=NumberFormat.getNumberInstance();
+		nf.setGroupingUsed(true);
+		nf.setMinimumFractionDigits(2);
+		nf.setMaximumFractionDigits(2);
+		return nf.format(dinero);
+		
 	}
 	public String darID()
 	{
@@ -199,4 +274,5 @@ public class Servicio implements Serializable
 			return linea;
 		}
 	}
+	
 }

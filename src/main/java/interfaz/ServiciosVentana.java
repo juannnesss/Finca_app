@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -34,6 +35,7 @@ public class ServiciosVentana extends JFrame implements ActionListener
 	private final static String NUEVA_CARGA = "nuevoCARGA";
 	private final static String ELIMINAR = "eliminar";
 	private final static String ATRAS = "atras";
+	private final static String INFO = "info";
 	private final static String[] columTags = { "Fecha", "Tipo", "Lote", "Cultivo","Numero Maquinas","Empleado(s)","Costo Total Area","Costo Total" };
 
 	private InterfazFinca interfazPrincipal;
@@ -44,6 +46,7 @@ public class ServiciosVentana extends JFrame implements ActionListener
 	private JButton nCargaSer;
 	private JButton eServicio;
 	private JButton atras;
+	private JButton bInfo;
 	
 	private JScrollPane scroll;
 
@@ -55,7 +58,7 @@ public class ServiciosVentana extends JFrame implements ActionListener
 		finca = interfazPrincipal.darFinca();
 		setLayout(new BorderLayout());
 		JPanel panelBotones = new JPanel();
-		panelBotones.setLayout(new GridLayout(4, 1));
+		panelBotones.setLayout(new GridLayout(5, 1));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		setTitle("Florencia-Servicio");
@@ -85,6 +88,11 @@ public class ServiciosVentana extends JFrame implements ActionListener
 
 		tabla = new JTable(cargarInfo(), columTags);
 		scroll = new JScrollPane(tabla);
+		bInfo=new JButton("Info");
+		
+		bInfo.setActionCommand(INFO);
+		bInfo.addActionListener(this);
+		panelBotones.add(bInfo);
 
 		add(scroll, BorderLayout.CENTER);
 		add(panelBotones, BorderLayout.EAST);
@@ -171,6 +179,10 @@ public class ServiciosVentana extends JFrame implements ActionListener
 			this.setVisible(false);
 			interfazPrincipal.setVisible(true);
 		}
+		if(a.equals(INFO))
+		{
+			panelInfo();
+		}
 	}
 	public Finca darFinca()
 	{
@@ -228,6 +240,24 @@ public class ServiciosVentana extends JFrame implements ActionListener
 
 		}
 		
+		
+	}
+	public void panelInfo() 
+	{
+		int index=tabla.getSelectedRow();
+		try
+		{
+			Servicio servicio=finca.darServicios().get(index);
+			JDialog jDialog=new DialogoInfo(this, servicio);
+			jDialog.setVisible(true);
+			
+			
+		}
+		catch (Exception e) 
+		{
+			JOptionPane.showMessageDialog(this, "Selecione Servicio", "ERROR",JOptionPane.ERROR_MESSAGE);
+		
+		}
 		
 	}
 }
